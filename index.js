@@ -21,22 +21,22 @@ app.use('/produtos', produtos);
 app.use('/usuario', usuarios);
 
 //POR ID
-app.get('/produto/:id', (req, res) => {
-  let buscaidProduto = req.params.id;
-  let produto;
-  for (i=0;i<dados.length;i++) {
-    if (dados[i].idProduto == buscaidProduto) {
-     produto = dados[i]
-     break;
-    }
-  }
-  if (produto) mensagem = "Produto encontrado"
-  else mensagem = "Produto não encontrado"
+//app.get('/produto/:id', (req, res) => {
+//  let buscaidProduto = req.params.id;
+//  let produto;
+//  for (i=0;i<dados.length;i++) {
+//    if (dados[i].idProduto == buscaidProduto) {
+//     produto = dados[i]
+//     break;
+//    }
+//  }
+//  if (produto) mensagem = "Produto encontrado"
+//  else mensagem = "Produto não encontrado"
   //res.statusCode = 200;
-  res.status(200).json(produto)
+//  res.status(200).json(produto)
   //res.json({produto: produto, mensagem: mensagem})
   //res.status(200).json({PROD: produto, MENS: mensagem})
-})
+//})
 
 //POST
 app.post('/produto', (req, res) => {

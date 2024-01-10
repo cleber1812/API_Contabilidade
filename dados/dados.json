@@ -1,0 +1,17 @@
+[
+    {
+        "idProduto": 1,
+        "preco": 1999.99,
+        "cashback": 5
+    },
+    {
+        "idProduto": 2,
+        "preco": 500.00,
+        "cashback": 12
+    },
+    {
+        "idProduto": 3,
+        "preco": 56.49,
+        "cashback": 2
+    }
+]

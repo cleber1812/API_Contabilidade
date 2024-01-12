@@ -1,0 +1,126 @@
+-- MySQL Workbench Synchronization
+-- Generated: 2024-01-11 15:53
+-- Model: New Model
+-- Version: 1.0
+-- Project: Name of the project
+-- Author: cleber
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+ALTER TABLE `contabilidade`.`empresa` 
+DROP FOREIGN KEY `fk_empresa_usuario1`;
+
+ALTER TABLE `contabilidade`.`conta` 
+DROP FOREIGN KEY `fk_conta_grupo`,
+DROP FOREIGN KEY `fk_conta_usuario1`;
+
+ALTER TABLE `contabilidade`.`grupo` 
+DROP FOREIGN KEY `fk_grupo_usuario1`;
+
+ALTER TABLE `contabilidade`.`empresa` 
+CHARACTER SET = utf8 , COLLATE = utf8_general_ci ,
+ADD COLUMN `createdAt` DATE NOT NULL AFTER `fk_id_usuario`,
+ADD COLUMN `updatedAt` DATE NOT NULL AFTER `createdAt`,
+CHANGE COLUMN `id_empresa` `id` INT(11) NOT NULL AUTO_INCREMENT , RENAME TO  `contabilidade`.`empresas` ;
+
+CREATE TABLE IF NOT EXISTS `contabilidade`.`usuarios` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `senha` VARCHAR(45) NOT NULL,
+  `createdAt` DATE NOT NULL,
+  `updatedAt` DATE NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE IF NOT EXISTS `contabilidade`.`lancamentos` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `fk_id_empresa` INT(11) NOT NULL,
+  `data` DATE NOT NULL,
+  `descricao` VARCHAR(100) NULL DEFAULT NULL,
+  `fk_id_conta_debito` INT(11) NULL DEFAULT NULL,
+  `fk_id_conta_credito` INT(11) NULL DEFAULT NULL,
+  `valor` FLOAT(11) NOT NULL,
+  `fk_id_usuario` INT(11) NULL DEFAULT NULL,
+  `createdAt` DATE NOT NULL,
+  `updatedAt` DATE NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_lancamento_conta1_idx` (`fk_id_conta_credito` ASC) VISIBLE,
+  INDEX `fk_lancamento_empresa1_idx` (`fk_id_empresa` ASC) VISIBLE,
+  INDEX `fk_lancamento_usuario1_idx` (`fk_id_usuario` ASC) VISIBLE,
+  INDEX `fk_lancamento_conta2_idx` (`fk_id_conta_debito` ASC) VISIBLE,
+  CONSTRAINT `fk_lancamento_conta1`
+    FOREIGN KEY (`fk_id_conta_credito`)
+    REFERENCES `contabilidade`.`contas` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_lancamento_empresa1`
+    FOREIGN KEY (`fk_id_empresa`)
+    REFERENCES `contabilidade`.`empresas` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_lancamento_usuario1`
+    FOREIGN KEY (`fk_id_usuario`)
+    REFERENCES `contabilidade`.`usuarios` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_lancamento_conta2`
+    FOREIGN KEY (`fk_id_conta_debito`)
+    REFERENCES `contabilidade`.`contas` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+ALTER TABLE `contabilidade`.`conta` 
+CHARACTER SET = utf8 , COLLATE = utf8_general_ci ,
+DROP COLUMN `multiplicador`,
+ADD COLUMN `mutiplicador` INT(11) NULL DEFAULT 1 AFTER `conta`,
+ADD COLUMN `createdAt` DATE NOT NULL AFTER `fk_id_usuario`,
+ADD COLUMN `updatedAt` DATE NOT NULL AFTER `createdAt`,
+CHANGE COLUMN `id_conta` `id` INT(11) NOT NULL AUTO_INCREMENT , RENAME TO  `contabilidade`.`contas` ;
+
+ALTER TABLE `contabilidade`.`grupo` 
+CHARACTER SET = utf8 , COLLATE = utf8_general_ci ,
+ADD COLUMN `createdAt` DATE NOT NULL AFTER `fk_id_usuario`,
+ADD COLUMN `updatedAt` DATE NOT NULL AFTER `createdAt`,
+CHANGE COLUMN `id_grupo` `id` INT(11) NOT NULL AUTO_INCREMENT , RENAME TO  `contabilidade`.`grupos` ;
+
+DROP TABLE IF EXISTS `contabilidade`.`usuarios` ;
+
+DROP TABLE IF EXISTS `contabilidade`.`lancamentos` ;
+
+ALTER TABLE `contabilidade`.`empresa` 
+ADD CONSTRAINT `fk_empresa_usuario1`
+  FOREIGN KEY (`fk_id_usuario`)
+  REFERENCES `contabilidade`.`usuarios` (`id`)
+  ON DELETE SET NULL
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `contabilidade`.`conta` 
+ADD CONSTRAINT `fk_conta_grupo`
+  FOREIGN KEY (`fk_id_grupo`)
+  REFERENCES `contabilidade`.`grupos` (`id`)
+  ON DELETE SET NULL
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_conta_usuario1`
+  FOREIGN KEY (`fk_id_usuario`)
+  REFERENCES `contabilidade`.`usuarios` (`id`)
+  ON DELETE SET NULL
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `contabilidade`.`grupo` 
+ADD CONSTRAINT `fk_grupo_usuario1`
+  FOREIGN KEY (`fk_id_usuario`)
+  REFERENCES `contabilidade`.`usuarios` (`id`)
+  ON DELETE SET NULL
+  ON UPDATE NO ACTION;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

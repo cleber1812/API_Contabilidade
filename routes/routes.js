@@ -1,8 +1,9 @@
 const { Router} = require('express');
 const routes = Router();
-const LancamentosController = require('../controller/lancamentosController');
 const UsuariosController = require('../controller/usuariosController');
 const EmpresasController = require('../controller/empresasController');
+const ContasController = require('../controller/contasController');
+const LancamentosController = require('../controller/lancamentosController');
 //let dados = require('../dados/dados.json');
 
 routes.get('/', (req, res) => {    
@@ -14,8 +15,23 @@ routes.get('/usuario/:id', UsuariosController.listarUsuario);
 routes.post('/usuario', UsuariosController.inserirUsuario);
 routes.put('/usuario/:id', UsuariosController.atualizarUsuario);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
+
 routes.get('/empresas', EmpresasController.listarEmpresas);
-routes.post('/empresas', EmpresasController.inserirEmpresa);
+routes.get('/empresa/:id', EmpresasController.listarEmpresa);
+routes.post('/empresa', EmpresasController.inserirEmpresa);
+routes.put('/empresa/:id', EmpresasController.atualizarEmpresa);
+routes.delete('/empresa/:id', EmpresasController.deletarEmpresa);
+
+routes.get('/contas', ContasController.listarContas);
+routes.get('/conta/:id', ContasController.listarConta);
+routes.post('/conta', ContasController.inserirConta);
+routes.put('/conta/:id', ContasController.atualizarConta);
+routes.delete('/conta/:id', ContasController.deletarConta);
+
 routes.get('/lancamentos', LancamentosController.listarLancamentos);
+routes.get('/lancamento/:id', LancamentosController.listarLancamento);
+routes.post('/lancamento', LancamentosController.inserirLancamento);
+routes.put('/lancamento/:id', LancamentosController.atualizarLancamento);
+routes.delete('/lancamento/:id', LancamentosController.deletarLancamento);
 
 module.exports = routes;

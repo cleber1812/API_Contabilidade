@@ -1,10 +1,67 @@
 const { Usuario } = require('../models');
+const { Op } = require('sequelize');
+const jwt = require('jsonwebtoken');
 
 
 class UsuariosController {
 
+    /*ID do usuário está em : req.userId */
+    async meusDados(req,res) {
+        try {
+            const pessoa_encontrada = await Usuario.findByPk(req.userId);
+            if (pessoa_encontrada)
+                return res.status(200).json(pessoa_encontrada)                
+            else
+                return res.status(200).json({mensagem: "Pessoa não encontrada"}); 
+        }
+        catch(err){
+            return res.status(400).json({error: err.message});
+        }
+    }
+
+    /*Login é usado numa rota POST para enviar email e senha.
+    O JWT devolve um token válido para ser usado em outras 
+    rotas com o middleware VERIFICAR() */
+    async login(req,res) {
+        let email = req.body.email;
+        let senha = req.body.senha;
+
+        try {            
+            const pessoa_encontrada = await Usuario.findOne({
+                attributes: ['id','nome', 'email','createdAt','updatedAt'],
+                where: {
+                    [Op.and]: [
+                        {email: {[Op.eq]: email,}}, 
+                        {senha: {[Op.eq]: senha,}}
+                    ]
+                }
+            });             
+
+            if (pessoa_encontrada) {
+                const token = jwt.sign(
+                    {id: pessoa_encontrada.id},
+                    process.env.ACCESS_SECRET, 
+                    {expiresIn: 1500});
+
+                return res.status(200).json({
+                    auth: true,
+                    token: token,
+                    nome: pessoa_encontrada.nome, email,
+                });  
+            }                
+            else 
+                return res.status(200).json({mensagem: "Usuário ou senha inválidos"})                     
+        }
+        catch(err) {
+            return res.status(400).json({error: err.message});        
+        }
+    }
+
+
     async listarUsuarios(req, res) {
-        let usuarios = await Usuario.findAll();
+        let usuarios = await Usuario.findAll({
+            attributes: ['id','nome', 'email','createdAt']
+        });
         console.log(usuarios);
         res.status(200).json(usuarios);
     }
@@ -24,11 +81,21 @@ class UsuariosController {
     }
 
     async inserirUsuario(req, res) {
+        let email = req.body.email;
+
         try {
-            let usuarioParaInserir = req.body
-            console.log(usuarioParaInserir);
-            const usuarioResultado = await Usuario.create(usuarioParaInserir)
-            return res.status(200).json(usuarioResultado);
+            const pessoa_encontrada = await Usuario.findOne({
+                attributes: ['id', 'nome', 'email'],
+                where: {
+                    email: {[Op.eq]: email}
+                }
+            });
+            if (!pessoa_encontrada) {
+                const usuarioResultado = await Usuario.create(req.body);
+                return res.status(200).json(usuarioResultado);
+            }
+            else
+                return res.status(401).json({mensagem: "Email já cadastrado"})
         }
         catch (err) {
             return res.status(400).json({error: err.message})

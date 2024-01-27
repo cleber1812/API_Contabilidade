@@ -4,6 +4,7 @@ const UsuariosController = require('../controller/usuariosController');
 const EmpresasController = require('../controller/empresasController');
 const ContasController = require('../controller/contasController');
 const LancamentosController = require('../controller/lancamentosController');
+const DashboardController = require('../controller/dashboardController');
 const verificar = require('../middlewares/autenticacao');
 //let dados = require('../dados/dados.json');
 
@@ -40,7 +41,11 @@ routes.delete('/conta/:id', ContasController.deletarConta);
 routes.get('/lancamentos', LancamentosController.listarLancamentos);
 routes.get('/lancamento/:id', LancamentosController.listarLancamento);
 routes.post('/lancamento', LancamentosController.inserirLancamento);
+routes.post('/empresa/:id/lancamento', verificar(), LancamentosController.inserirLancamento2);
 routes.put('/lancamento/:id', LancamentosController.atualizarLancamento);
 routes.delete('/lancamento/:id', LancamentosController.deletarLancamento);
+
+//routes.get('/dashboard', DashboardController.show);
+routes.get('/dashboard', verificar(), DashboardController.show);
 
 module.exports = routes;

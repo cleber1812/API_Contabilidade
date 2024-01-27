@@ -1,4 +1,4 @@
-const { Lancamento } = require('../models');
+const { Lancamento, Usuario, Empresa } = require('../models');
 
 
 class LancamentosController {
@@ -28,6 +28,37 @@ class LancamentosController {
             let lancamentoParaInserir = req.body
             console.log(lancamentoParaInserir);
             const lancamentoResultado = await Lancamento.create(lancamentoParaInserir)
+            return res.status(200).json(lancamentoResultado);
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+    }
+
+    /*Nesta rota, o lançamento pega o ID em userID VERIFICAR() + id da empresa 
+    na rota (params) e o restante do body. Só pode lançar na mesma empresa que ele criou*/
+    async inserirLancamento2(req, res) {
+        try {
+            const pessoa_encontrada = await Usuario.findByPk(req.userId);
+            const empresaLancar = await Empresa.findByPk(req.params.id); 
+            //const fk_id_empresa = req.params.id;            
+            /*Esta const foi criada apenas para pegar o ID da empresa e validar o id do usuário*/
+            //const empresaLancar = await Empresa.findByPk(fk_id_empresa); 
+            const {data, descricao, fk_id_conta_debito, fk_id_conta_credito, valor } = req.body;
+            //const lancamentoParaInserir = req.body;            
+            console.log(pessoa_encontrada, /*fk_id_empresa,*/ /*lancamentoParaInserir */);            
+
+            if (String(pessoa_encontrada.id) !== String(empresaLancar.fk_id_usuario))
+            return res.status(401).json({error: "Não autorizado"}) 
+
+            //const lancamentoResultado = await Lancamento.create(lancamentoParaInserir)
+            const lancamentoResultado = await Lancamento.create({
+                fk_id_usuario: pessoa_encontrada.id,
+              //  lancamentoParaInserir
+              // fk_id_empresa,
+                fk_id_empresa: empresaLancar.id,
+                data, descricao, fk_id_conta_debito, fk_id_conta_credito, valor
+            })
             return res.status(200).json(lancamentoResultado);
         }
         catch (err) {

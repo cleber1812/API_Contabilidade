@@ -4,15 +4,20 @@ const UsuariosController = require('../controller/usuariosController');
 const EmpresasController = require('../controller/empresasController');
 const ContasController = require('../controller/contasController');
 const LancamentosController = require('../controller/lancamentosController');
+const verificar = require('../middlewares/autenticacao');
 //let dados = require('../dados/dados.json');
 
 routes.get('/', (req, res) => {    
     res.status(200).json({mensagem: "Hellow 4"});
+    
 });
 
+//routes.get('/usuarios', UsuariosController.listarUsuarios);
 routes.get('/usuarios', UsuariosController.listarUsuarios);
 routes.get('/usuario/:id', UsuariosController.listarUsuario);
+routes.get('/meusdados', verificar(), UsuariosController.meusDados);
 routes.post('/usuario', UsuariosController.inserirUsuario);
+routes.post('/login', UsuariosController.login);
 routes.put('/usuario/:id', UsuariosController.atualizarUsuario);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
 

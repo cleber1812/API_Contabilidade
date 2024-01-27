@@ -21,11 +21,15 @@ routes.post('/login', UsuariosController.login);
 routes.put('/usuario/:id', UsuariosController.atualizarUsuario);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
 
+routes.get('/index', EmpresasController.index);
 routes.get('/empresas', EmpresasController.listarEmpresas);
 routes.get('/empresa/:id', EmpresasController.listarEmpresa);
 routes.post('/empresa', EmpresasController.inserirEmpresa);
+routes.post('/empresa2', EmpresasController.inserirEmpresa2);
 routes.put('/empresa/:id', EmpresasController.atualizarEmpresa);
 routes.delete('/empresa/:id', EmpresasController.deletarEmpresa);
+//routes.delete('/empresa2/:id', verificar(), EmpresasController.deletarEmpresa2);
+routes.delete('/empresa3', verificar(), EmpresasController.deletarEmpresa2);
 
 routes.get('/contas', ContasController.listarContas);
 routes.get('/conta/:id', ContasController.listarConta);

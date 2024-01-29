@@ -9,7 +9,8 @@ const verificar = require('../middlewares/autenticacao');
 //let dados = require('../dados/dados.json');
 
 routes.get('/', (req, res) => {    
-    res.status(200).json({mensagem: "Hellow 4"});
+    res.status(200).json({message: "Hellow 4"});
+    //res.status(200).json("Hellow World");
     
 });
 

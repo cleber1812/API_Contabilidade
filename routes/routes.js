@@ -47,6 +47,10 @@ routes.put('/lancamento/:id', LancamentosController.atualizarLancamento);
 routes.delete('/lancamento/:id', LancamentosController.deletarLancamento);
 
 //routes.get('/dashboard', DashboardController.show);
-routes.get('/dashboard', verificar(), DashboardController.show);
+//routes.get('/dashboard', verificar(), DashboardController.show);
+routes.get('/dashboard/:id', DashboardController.show);
+// routes.get('/dashboard/:idUsuario', verificar(), DashboardController.show);
+routes.get('/lancamentosempresa/:fk_id_empresa', DashboardController.lancamentosEmpresa);
+
 
 module.exports = routes;

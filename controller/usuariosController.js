@@ -41,12 +41,13 @@ class UsuariosController {
                 const token = jwt.sign(
                     {id: pessoa_encontrada.id},
                     process.env.ACCESS_SECRET, 
-                    {expiresIn: 1500});
+                    {expiresIn: 15000});
 
                 return res.status(200).json({
                     auth: true,
                     token: token,
-                    nome: pessoa_encontrada.nome, email,
+                    nome: pessoa_encontrada.nome, email, 
+                    id: pessoa_encontrada.id,
                 });  
             }                
             else 

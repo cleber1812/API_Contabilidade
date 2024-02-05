@@ -6,5 +6,10 @@ module.exports = (sequelize, Sequelize) =>{
         email: Sequelize.STRING, 
         senha: Sequelize.STRING,        
     })
+
+    // Usuario.associate = (models) => {
+    //     Usuario.hasMany(models.Lancamento, { foreignKey: 'fk_id_usuario', as: 'lancamentos' });
+    // };
+
     return Usuario
 }

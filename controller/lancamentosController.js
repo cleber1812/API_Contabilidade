@@ -19,8 +19,17 @@ class LancamentosController {
             const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
             const endDate = req.query.endDate;
 
+            let whereClause = {};
+            if (startDate && endDate) {
+                whereClause = {
+                    data: {
+                        [Op.between]: [startDate, endDate],
+                    },
+                };
+            }
+
             const lancamentos = await Lancamento.findAll({
-                attributes: ['data', 'descricao', 'valor'],
+                attributes: ['id', 'data', 'descricao', 'valor'],
                 include: [
                     {
                         model: Contas,
@@ -43,10 +52,11 @@ class LancamentosController {
                 ],
                 where: {
                     fk_id_empresa: empresaId,
-                    data: {
-                        // [Op.between]: ['2023-04-01', '2024-12-31']
-                        [Op.between]: [startDate, endDate]
-                    }
+                    // data: {
+                    //     // [Op.between]: ['2023-04-01', '2024-12-31']
+                    //     [Op.between]: [startDate, endDate]
+                    // }
+                    ...whereClause,
                 }
             });
 
@@ -54,6 +64,7 @@ class LancamentosController {
 
             // Transformar os resultados antes de enviar como resposta
             const resultadosFormatados = lancamentos.map(lancamento => ({
+                id: lancamento.id,
                 data: lancamento.data,
                 descricao: lancamento.descricao,
                 valor: lancamento.valor,

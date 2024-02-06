@@ -40,7 +40,6 @@ routes.put('/conta/:id', ContasController.atualizarConta);
 routes.delete('/conta/:id', ContasController.deletarConta);
 
 routes.get('/lancamentos', LancamentosController.listarLancamentos);
-routes.get('/lancamentosempresa/:fk_id_empresa', LancamentosController.listarLancamentos2);
 routes.get('/lancamento/:id', LancamentosController.listarLancamento);
 routes.post('/lancamento', LancamentosController.inserirLancamento);
 routes.post('/empresa/:id/lancamento', verificar(), LancamentosController.inserirLancamento2);
@@ -52,6 +51,6 @@ routes.delete('/lancamento/:id', LancamentosController.deletarLancamento);
 routes.get('/dashboard/:id', DashboardController.show);
 // routes.get('/dashboard/:idUsuario', verificar(), DashboardController.show);
 routes.get('/lancamentosempresa/:fk_id_empresa', DashboardController.lancamentosEmpresa);
-
+routes.get('/diarioempresa/:fk_id_empresa', LancamentosController.listarLancamentos2);
 
 module.exports = routes;

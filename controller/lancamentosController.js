@@ -1,8 +1,5 @@
-const { Lancamento, Usuario, Empresa, Contas } = require('../models');
-// const Lancamento = require('../models/Lancamento');
-// const Usuario = require('../models/Usuario');
-// const Empresa = require('../models/Empresas');
-// const Contas = require('../models/Conta');
+// const { Lancamento, Usuario, Empresa, Contas } = require('../models');
+const { Lancamento, Usuario, Empresa, Contas, sequelize } = require('../models'); // Certifique-se de incluir 'sequelize' na importação
 const { Op } = require('sequelize');
 
 class LancamentosController {
@@ -12,76 +9,7 @@ class LancamentosController {
         console.log(lancamentos);
         res.status(200).json(lancamentos);
     }
-
-    async listarLancamentos2(req, res) {
-        try {
-            const empresaId = req.params.fk_id_empresa;
-            const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
-            const endDate = req.query.endDate;
-
-            let whereClause = {};
-            if (startDate && endDate) {
-                whereClause = {
-                    data: {
-                        [Op.between]: [startDate, endDate],
-                    },
-                };
-            }
-
-            const lancamentos = await Lancamento.findAll({
-                attributes: ['id', 'data', 'descricao', 'valor'],
-                include: [
-                    {
-                        model: Contas,
-                        as: 'contaDebito',
-                        attributes: ['conta'],
-                        // where: { id: Sequelize.literal('Lancamento.fk_id_conta_debito') }
-                        // where: { id: Sequelize.col('Lancamento.fk_id_conta_debito') }
-                    },
-                    {
-                        model: Contas,
-                        as: 'contaCredito',
-                        attributes: ['conta'],
-                        // where: { id: Sequelize.col('Lancamento.fk_id_conta_credito') }
-                    },
-                    {
-                        model: Usuario,
-                        as: 'usuario',
-                        attributes: ['nome'],
-                    }
-                ],
-                where: {
-                    fk_id_empresa: empresaId,
-                    // data: {
-                    //     // [Op.between]: ['2023-04-01', '2024-12-31']
-                    //     [Op.between]: [startDate, endDate]
-                    // }
-                    ...whereClause,
-                }
-            });
-
-            // res.status(200).json(lancamentos);
-
-            // Transformar os resultados antes de enviar como resposta
-            const resultadosFormatados = lancamentos.map(lancamento => ({
-                id: lancamento.id,
-                data: lancamento.data,
-                descricao: lancamento.descricao,
-                valor: lancamento.valor,
-                contaDebito: lancamento.contaDebito.conta,
-                contaCredito: lancamento.contaCredito.conta,
-                usuario: lancamento.usuario.nome,
-            }));
-
-            res.status(200).json(resultadosFormatados);
-
-
-        } catch (error) {
-            console.error('Erro ao buscar lançamentos:', error);
-            res.status(500).json({ error: 'Erro interno do servidor' });
-        }
-    }
-
+    
     async listarLancamento(req, res) {
         try {            
             let lancamentoResposta = await Lancamento.findByPk(req.params.id)
@@ -171,6 +99,134 @@ class LancamentosController {
             return res.status(400).json({error: err.message})
         }
     }   
+
+    //Livro Diário
+
+    async listarLancamentos2(req, res) {
+        try {
+            const empresaId = req.params.fk_id_empresa;
+            const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
+            const endDate = req.query.endDate;
+
+            let whereClause = {};
+            if (startDate && endDate) {
+                whereClause = {
+                    data: {
+                        [Op.between]: [startDate, endDate],
+                    },
+                };
+            }
+
+            const lancamentos = await Lancamento.findAll({
+                attributes: ['id', 'data', 'descricao', 'valor'],
+                include: [
+                    {
+                        model: Contas,
+                        as: 'contaDebito',
+                        attributes: ['conta'],
+                        // where: { id: Sequelize.literal('Lancamento.fk_id_conta_debito') }
+                        // where: { id: Sequelize.col('Lancamento.fk_id_conta_debito') }
+                    },
+                    {
+                        model: Contas,
+                        as: 'contaCredito',
+                        attributes: ['conta'],
+                        // where: { id: Sequelize.col('Lancamento.fk_id_conta_credito') }
+                    },
+                    {
+                        model: Usuario,
+                        as: 'usuario',
+                        attributes: ['nome'],
+                    }
+                ],
+                where: {
+                    fk_id_empresa: empresaId,
+                    // data: {
+                    //     // [Op.between]: ['2023-04-01', '2024-12-31']
+                    //     [Op.between]: [startDate, endDate]
+                    // }
+                    ...whereClause,
+                }
+            });
+
+            // res.status(200).json(lancamentos);
+
+            // Transformar os resultados antes de enviar como resposta
+            const resultadosFormatados = lancamentos.map(lancamento => ({
+                id: lancamento.id,
+                data: lancamento.data,
+                descricao: lancamento.descricao,
+                valor: lancamento.valor,
+                contaDebito: lancamento.contaDebito.conta,
+                contaCredito: lancamento.contaCredito.conta,
+                usuario: lancamento.usuario.nome,
+            }));
+
+            res.status(200).json(resultadosFormatados);
+
+
+        } catch (error) {
+            console.error('Erro ao buscar lançamentos:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+
+    //Livro Razão
+    async razao(req, res) {
+        try {
+            const empresaId = req.params.fk_id_empresa;
+
+            const lancamentos = await Lancamento.findAll({
+                attributes: [
+                    'id', 
+                    'data', 
+                    'descricao', 
+                    [sequelize.literal('CASE WHEN `fk_id_conta_debito` = `contaDebito`.`id` THEN `valor` ELSE 0 END'), 'valorDebitado'],
+                    [sequelize.literal('CASE WHEN `fk_id_conta_credito` = `contaCredito`.`id` THEN `valor` ELSE 0 END'), 'valorCreditado']
+                ],   
+                include: [{
+                    model: Contas,
+                    as: 'contaDebito', // Substitua 'ContaDebito' pelo alias correto para a associação de débito
+                    required: false, // Alterado para false                    
+                    where: {conta: 'Fornecedores',},
+                }, {
+                    model: Contas,
+                    as: 'contaCredito', // Substitua 'ContaCredito' pelo alias correto para a associação de crédito
+                    required: false, // Alterado para false                    
+                    where: {conta: 'Fornecedores',},                    
+                }],            
+                where: {
+                    fk_id_empresa: empresaId,
+                    data: {
+                        [Op.between]: ['2023-01-01', '2024-12-31']                        
+                    },
+                    [Op.or]: [
+                        { '$contaDebito.id$': { [Op.not]: null } }, // Excluir lançamentos sem contaDebito
+                        { '$contaCredito.id$': { [Op.not]: null } } // Excluir lançamentos sem contaCredito
+                    ],                                  
+                },                
+                raw: true, // Retorna resultados como objetos simples
+            });
+
+            // res.status(200).json(lancamentos);
+
+            // Mapear e filtrar os campos desejados
+            const resultadoFiltrado = lancamentos.map(lancamento => {
+                return {
+                    id: lancamento.id,
+                    data: lancamento.data,
+                    descricao: lancamento.descricao,
+                    valorDebitado: lancamento.valorDebitado,
+                    valorCreditado: lancamento.valorCreditado
+                };
+            });
+            res.status(200).json(resultadoFiltrado);
+
+        } catch (error) {
+            console.error('Erro ao buscar lançamentos:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
 
 }
 

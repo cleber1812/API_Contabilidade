@@ -175,7 +175,10 @@ class LancamentosController {
     async razao(req, res) {
         try {
             const empresaId = req.params.fk_id_empresa;
-
+            const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
+            const endDate = req.query.endDate;
+            const contaConsultada = req.query.contaConsultada;
+            
             const lancamentos = await Lancamento.findAll({
                 attributes: [
                     'id', 
@@ -188,22 +191,25 @@ class LancamentosController {
                     model: Contas,
                     as: 'contaDebito', // Substitua 'ContaDebito' pelo alias correto para a associação de débito
                     required: false, // Alterado para false                    
-                    where: {conta: 'Fornecedores',},
+                    // where: {conta: 'Fornecedores',},
+                    where: {conta: contaConsultada},
                 }, {
                     model: Contas,
                     as: 'contaCredito', // Substitua 'ContaCredito' pelo alias correto para a associação de crédito
                     required: false, // Alterado para false                    
-                    where: {conta: 'Fornecedores',},                    
+                    // where: {conta: 'Fornecedores',},
+                    where: {conta: contaConsultada},                    
                 }],            
                 where: {
                     fk_id_empresa: empresaId,
                     data: {
-                        [Op.between]: ['2023-01-01', '2024-12-31']                        
-                    },
+                        // [Op.between]: ['2023-01-01', '2024-12-31']                        
+                        [Op.between]: [startDate, endDate]
+                    },                    
                     [Op.or]: [
                         { '$contaDebito.id$': { [Op.not]: null } }, // Excluir lançamentos sem contaDebito
                         { '$contaCredito.id$': { [Op.not]: null } } // Excluir lançamentos sem contaCredito
-                    ],                                  
+                    ],                                                     
                 },                
                 raw: true, // Retorna resultados como objetos simples
             });

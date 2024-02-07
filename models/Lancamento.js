@@ -16,7 +16,7 @@ module.exports = (sequelize) =>{
         // valorDebitado: {type: DataTypes.VIRTUAL,},
         // valorCreditado: {type: DataTypes.VIRTUAL,}, 
         fk_id_empresa: DataTypes.INTEGER, 
-        data: DataTypes.DATE, 
+        data: DataTypes.DATEONLY, // Use DATEONLY para evitar problemas com o formato Moment.js
         descricao: DataTypes.STRING,
         fk_id_conta_debito: DataTypes.INTEGER,
         fk_id_conta_credito: DataTypes.INTEGER,

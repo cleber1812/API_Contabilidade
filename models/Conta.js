@@ -9,10 +9,13 @@ module.exports = (sequelize, Sequelize) =>{
         multiplicador: Sequelize.INTEGER,
         fk_id_usuario: Sequelize.INTEGER        
     });
-
-    // Conta.associate = (models) => {
-    //     Conta.belongsTo(models.Usuario, { foreignKey: 'fk_id_usuario', as: 'usuario' });
-    // };
+    
+    Conta.associate = (models) => {
+        Conta.belongsTo(models.Grupo, { foreignKey: 'fk_id_grupo', as: 'grupo' });
+        
+        Conta.hasMany(models.Lancamento, { foreignKey: 'fk_id_conta_debito', as: 'lancamentosDebito' });
+        Conta.hasMany(models.Lancamento, { foreignKey: 'fk_id_conta_credito', as: 'lancamentosCredito' });
+    };
 
     return Conta
 }

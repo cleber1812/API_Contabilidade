@@ -255,46 +255,48 @@ class LancamentosController {
             const balanco = await Contas.findAll({
                 attributes: [
                     'id', 'fk_id_grupo', 'subgrupo', 'elemento', 'conta',                    
-                    // [sequelize.literal(`SUM(CASE WHEN lancamentosDebito.fk_id_conta_debito = Contas.id THEN COALESCE(lancamentosDebito.valor, 0) ELSE 0 END - CASE WHEN lancamentosCredito.fk_id_conta_credito = Contas.id THEN COALESCE(lancamentosCredito.valor, 0) ELSE 0 END)`), 'valor',],
-                    // [sequelize.literal(`SUM(CASE WHEN lancamentosDebito.fk_id_conta_debito = Contas.id THEN lancamentosDebito.valor ELSE 0 END)`), 'valorD',],
-                    // [sequelize.literal(`SUM(CASE WHEN lancamentosCredito.fk_id_conta_credito = Contas.id THEN lancamentosCredito.valor ELSE 0 END)`), 'valorC',],
-                    [sequelize.literal(`COALESCE((
-                                    SELECT SUM(lancamentosDebito.valor)
-                                    FROM lancamentos AS lancamentosDebito
-                                    WHERE
-                                        lancamentosDebito.fk_id_empresa = ${empresaId}                                        
-                                        AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
-                                        AND lancamentosDebito.fk_id_conta_debito = Contas.id
-                                ), 0)`),
-                        'valor2D',
-                    ],
-                    [sequelize.literal(`COALESCE((                        
-                        SELECT SUM(lancamentosCredito.valor)
-                        FROM lancamentos AS lancamentosCredito
-                        WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
-                            AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
-                            AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                                        
+                    [sequelize.literal(`
+                        COALESCE((                                
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE
+                                lancamentosDebito.fk_id_empresa = ${empresaId}                                        
+                                AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
                         ), 0)`),
-                        'valor2C',                    
+                        'valorD',
                     ],
-                    [sequelize.literal(`COALESCE((
-                        SELECT SUM(lancamentosDebito.valor)
-                        FROM lancamentos AS lancamentosDebito
-                        WHERE
-                            lancamentosDebito.fk_id_empresa = ${empresaId} 
-                            AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
-                            AND lancamentosDebito.fk_id_conta_debito = Contas.id
-                    ), 0)
-                    -
-                    COALESCE((
-                        SELECT SUM(lancamentosCredito.valor)
-                        FROM lancamentos AS lancamentosCredito
-                        WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
-                        AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
-                            AND lancamentosCredito.fk_id_conta_credito = Contas.id
+
+                    [sequelize.literal(`
+                        COALESCE((                        
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                            ), 0)`),
+                        'valorC',                    
+                    ],
+                    
+                    [sequelize.literal(`
+                        COALESCE((
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+                                AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
                         ), 0)`),
-                        'valor2',                    
-                    ],
+                        'valor',                    
+                    ],                    
                 ],
                 include: [ 
                     {
@@ -349,23 +351,25 @@ class LancamentosController {
                 // order: [['grupo.grupo'], ['subgrupo'], ['elemento']],
                 // order: [['subgrupo'], ['elemento']],
                 raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
-                // nest: true, // Agrupa os resultados aninhados
+                nest: true, // Agrupa os resultados aninhados
             });
 
-            res.status(200).json(balanco);
+            // res.status(200).json(balanco);
 
-            // // Transformar os resultados antes de enviar como resposta
-            // const resultadosFormatados = balanco.map(lancamento => ({
-            //     id: lancamento.id,
-            //     data: lancamento.data,
-            //     descricao: lancamento.descricao,
-            //     valor: lancamento.valor,
-            //     contaDebito: lancamento.contaDebito.conta,
-            //     contaCredito: lancamento.contaCredito.conta,
-            //     usuario: lancamento.usuario.nome,
-            // }));
+            // Transformar os resultados antes de enviar como resposta
+            const resultadosFormatados = balanco.map(lancamento => ({
+                id: lancamento.id,
+                grupo: lancamento.grupo.grupo,                
+                subgrupo: lancamento.subgrupo,
+                elemento: lancamento.elemento,
+                nome_grupo: lancamento.grupo.nome_grupo,
+                conta: lancamento.conta,
+                valor: lancamento.valor,
+                valorD: lancamento.valorD,
+                valorC: lancamento.valorC,
+            }));
 
-            // res.status(200).json(resultadosFormatados);
+            res.status(200).json(resultadosFormatados);
 
 
         } catch (error) {

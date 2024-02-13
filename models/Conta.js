@@ -7,7 +7,7 @@ module.exports = (sequelize, Sequelize) =>{
         elemento: Sequelize.INTEGER,
         conta: Sequelize.STRING,
         multiplicador: Sequelize.INTEGER,
-        fk_id_usuario: Sequelize.INTEGER        
+        fk_id_usuario: Sequelize.INTEGER                    
     });
     
     Conta.associate = (models) => {

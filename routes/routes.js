@@ -51,9 +51,9 @@ routes.delete('/lancamento/:id', LancamentosController.deletarLancamento);
 routes.get('/dashboard/:id', DashboardController.show);
 // routes.get('/dashboard/:idUsuario', verificar(), DashboardController.show);
 routes.get('/lancamentosempresa/:fk_id_empresa', DashboardController.lancamentosEmpresa);
-routes.get('/diarioempresa/:fk_id_empresa', LancamentosController.diario);
-routes.get('/razaoempresa/:fk_id_empresa', LancamentosController.razao);
-routes.get('/balanco/:fk_id_empresa', LancamentosController.balanco);
-// routes.get('/balanco', LancamentosController.balanco);
+routes.get('/diarioempresa/:fk_id_empresa', DashboardController.diario);
+routes.get('/razaoempresa/:fk_id_empresa', DashboardController.razao);
+routes.get('/balanco/:fk_id_empresa', DashboardController.balanco);
+
 
 module.exports = routes;

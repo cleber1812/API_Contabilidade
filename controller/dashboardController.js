@@ -54,13 +54,38 @@ class DashboardController {
 
             // Buscar os lançamentos associadas à empresa
             const lancamentos = await Lancamento.findAll({
+                attributes: [
+                "id", 
+                "fk_id_empresa",
+                "data",
+                "descricao",
+                "fk_id_conta_debito",
+                "fk_id_conta_credito",
+                "valor",
+                "fk_id_usuario",
+                ],
+                include: [
+                    {
+                        model: Contas,
+                        as: 'contaDebito',
+                        attributes: ['conta'],                        
+                    },
+                    {
+                        model: Contas,
+                        as: 'contaCredito',
+                        attributes: ['conta'],                        
+                    }
+                ],
                 where: {
                     fk_id_empresa: empresaId
                 },
                 order: [['data']],
+                // raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
+                // nest: true, // Agrupa os resultados aninhados
             });
+            
+            return res.status(200).json(lancamentos);            
 
-            return res.status(200).json(lancamentos);
         } catch (error) {
             return res.status(500).json({ mensagem: "Erro ao buscar lançamentos da empresa", error: error.message });
         }        

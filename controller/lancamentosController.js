@@ -348,7 +348,7 @@ class LancamentosController {
                 },
                 group: ['Contas.id', 'grupo.id'], // Use o alias ao agrupar
                 // group: ['Contas.id'], // Use o alias ao agrupar
-                // order: [['grupo.grupo'], ['subgrupo'], ['elemento']],
+                order: [[{Model: Grupo}, 'grupo'], ['subgrupo'], ['elemento']],
                 // order: [['subgrupo'], ['elemento']],
                 raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
                 nest: true, // Agrupa os resultados aninhados

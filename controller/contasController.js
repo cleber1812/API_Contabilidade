@@ -4,8 +4,10 @@ const { Contas } = require('../models');
 class ContasController {
 
     async listarContas(req, res) {
-        let contas = await Contas.findAll(
-            // {attributes: ['id', 'conta',]}
+        let contas = await Contas.findAll({
+            // attributes: ['id', 'conta'],
+            order: [['conta']],
+            }
         );
         // console.log(contas);
         res.status(200).json(contas);

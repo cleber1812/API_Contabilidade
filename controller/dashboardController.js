@@ -1,6 +1,6 @@
 const { Lancamento, Usuario, Empresa, Contas, Grupo, sequelize } = require('../models'); // Certifique-se de incluir 'sequelize' na importação
 const { Op } = require('sequelize');
-const { format } = require('date-fns');
+const moment = require('moment');
 
 class DashboardController {
 
@@ -91,7 +91,11 @@ class DashboardController {
             const resultadosFormatados = lancamentos.map(lancamento => ({
                 id: lancamento.id,
                 fk_id_empresa: lancamento.fk_id_empresa,
-                data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
+                // data: lancamento.data,
+                // data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
+                // data: format(new Date(`${lancamento.data}T00:00:00Z`), 'dd/MM/yyyy', { timeZone: 'America/Sao_Paulo' }),
+                // data: moment(lancamento.data).tz('America/Sao_Paulo').format('DD/MM/YYYY'),
+                data: moment(lancamento.data).format('DD/MM/YYYY'),
                 descricao: lancamento.descricao,
                 contaDebito: lancamento.contaDebito.conta,
                 contaCredito: lancamento.contaCredito.conta,
@@ -161,7 +165,7 @@ class DashboardController {
             // Transformar os resultados antes de enviar como resposta
             const resultadosFormatados = lancamentos.map(lancamento => ({
                 id: lancamento.id,
-                data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
+                data: moment(lancamento.data).format('DD/MM/YYYY'),
                 descricao: lancamento.descricao,
                 valor: lancamento.valor,
                 contaDebito: lancamento.contaDebito.conta,
@@ -228,7 +232,7 @@ class DashboardController {
             const resultadoFiltrado = lancamentos.map(lancamento => {
                 return {
                     id: lancamento.id,
-                    data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
+                    data: moment(lancamento.data).format('DD/MM/YYYY'),
                     descricao: lancamento.descricao,
                     valorDebitado: lancamento.valorDebitado,
                     valorCreditado: lancamento.valorCreditado

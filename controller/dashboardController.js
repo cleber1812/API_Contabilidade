@@ -1,5 +1,6 @@
 const { Lancamento, Usuario, Empresa, Contas, Grupo, sequelize } = require('../models'); // Certifique-se de incluir 'sequelize' na importação
 const { Op } = require('sequelize');
+const { format } = require('date-fns');
 
 class DashboardController {
 
@@ -55,14 +56,14 @@ class DashboardController {
             // Buscar os lançamentos associadas à empresa
             const lancamentos = await Lancamento.findAll({
                 attributes: [
-                "id", 
-                "fk_id_empresa",
-                "data",
-                "descricao",
-                "fk_id_conta_debito",
-                "fk_id_conta_credito",
-                "valor",
-                "fk_id_usuario",
+                'id', 
+                'fk_id_empresa',
+                'data',
+                'descricao',
+                'fk_id_conta_debito',
+                'fk_id_conta_credito',
+                'valor',
+                'fk_id_usuario',
                 ],
                 include: [
                     {
@@ -84,7 +85,21 @@ class DashboardController {
                 // nest: true, // Agrupa os resultados aninhados
             });
             
-            return res.status(200).json(lancamentos);            
+            // return res.status(200).json(lancamentos);  
+            
+            // Transformar os resultados antes de enviar como resposta
+            const resultadosFormatados = lancamentos.map(lancamento => ({
+                id: lancamento.id,
+                fk_id_empresa: lancamento.fk_id_empresa,
+                data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
+                descricao: lancamento.descricao,
+                contaDebito: lancamento.contaDebito.conta,
+                contaCredito: lancamento.contaCredito.conta,
+                valor: lancamento.valor,                
+                fk_id_usuario: lancamento.fk_id_usuario,
+            }));
+
+            res.status(200).json(resultadosFormatados);
 
         } catch (error) {
             return res.status(500).json({ mensagem: "Erro ao buscar lançamentos da empresa", error: error.message });
@@ -146,7 +161,7 @@ class DashboardController {
             // Transformar os resultados antes de enviar como resposta
             const resultadosFormatados = lancamentos.map(lancamento => ({
                 id: lancamento.id,
-                data: lancamento.data,
+                data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
                 descricao: lancamento.descricao,
                 valor: lancamento.valor,
                 contaDebito: lancamento.contaDebito.conta,
@@ -213,7 +228,7 @@ class DashboardController {
             const resultadoFiltrado = lancamentos.map(lancamento => {
                 return {
                     id: lancamento.id,
-                    data: lancamento.data,
+                    data: format(new Date(lancamento.data), 'dd/MM/yyyy'),
                     descricao: lancamento.descricao,
                     valorDebitado: lancamento.valorDebitado,
                     valorCreditado: lancamento.valorCreditado

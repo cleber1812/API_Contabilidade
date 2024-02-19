@@ -83,6 +83,31 @@ class LancamentosController {
         }
     }
 
+    async atualizarLancamento2(req, res) {
+        try {
+            const idUsuario = req.userId; 
+            let lancamentoUpdate = await Lancamento.findByPk(req.params.id);
+            const { fk_id_empresa, data, descricao, fk_id_conta_debito, fk_id_conta_credito, valor } = req.body            
+            
+            if (String(idUsuario) !== String(lancamentoUpdate.fk_id_usuario))
+                return res.status(401).json({error: "Não autorizado"})
+
+            if (lancamentoUpdate || idUsuario) {
+                await lancamentoUpdate.update({               
+                fk_id_usuario: idUsuario,
+                fk_id_empresa, data, descricao, fk_id_conta_debito, fk_id_conta_credito, valor
+                })                
+                return res.status(200).json(lancamentoUpdate)
+            }           
+            else {
+                return res.status(200).json({mensagem:"Lançamento não encontrado"})
+            }
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+    }
+
     async deletarLancamento(req, res) {
         try {
             let lancamentoDeletar = await Lancamento.findByPk(req.params.id);
@@ -98,7 +123,29 @@ class LancamentosController {
         catch (err) {
             return res.status(400).json({error: err.message})
         }
-    }       
+    }  
+
+    async deletarLancamento2(req, res) {
+        try {
+            const pessoa_encontrada = await Usuario.findByPk(req.userId);
+            let lancamentoDeletar = await Lancamento.findByPk(req.params.id);
+
+            if (String(pessoa_encontrada.id) !== String(lancamentoDeletar.fk_id_usuario))
+                return res.status(401).json({error: "Não autorizado"})
+
+            if (lancamentoDeletar) {
+                await lancamentoDeletar.destroy();
+                let mensag = ("lançamento deletado com sucesso");
+                return res.status(200).json({lancamentoDeletar, mensag})
+            }
+            else {
+                return res.status(200).json({mensagem:"Lançamento não encontrado"})
+            }
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+    }      
 
 }
 

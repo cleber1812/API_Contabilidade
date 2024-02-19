@@ -49,9 +49,9 @@ class DashboardController {
     }
 
     async lancamentosEmpresa(req, res) {
-        const { fk_id_empresa } = req.params;
+        const { fk_id_empresa } = req.params;                
 
-        try {
+        try {            
             // Certifique-se de que o ID da empresa na rota seja um número
             const empresaId = parseInt(fk_id_empresa, 10);
 

@@ -85,6 +85,27 @@ class EmpresaController {
         }
     }
 
+    async atualizarEmpresa2(req, res) {
+        try {
+            const pessoa_encontrada = await Usuario.findByPk(req.userId);
+            let empresaUpdate = await Empresa.findByPk(req.params.id);
+
+            if (String(pessoa_encontrada.id) !== String(empresaUpdate.fk_id_usuario))
+            return res.status(401).json({error: "Não autorizado"}) 
+
+            if (empresaUpdate) {
+                await empresaUpdate.update(req.body);
+                return res.status(200).json(empresaUpdate)
+            }
+            else {
+                return res.status(200).json({mensagem:"Empresa não encontrada"})
+            }
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+    }
+
     async deletarEmpresa(req, res) {
         try {
             let empresaDeletar = await Empresa.findByPk(req.params.id);
@@ -111,13 +132,13 @@ class EmpresaController {
             /*Depois que pega o headers como usuário, salva em outra const */
             //const usuarioLogado = await Usuario.findByPk(usuario);                        
             /*Esse pega o id do empresa através da rota */            
-            //const empresaDeletar = await Empresa.findByPk(req.params.id);
+            const empresaDeletar = await Empresa.findByPk(req.params.id);
             /*Esse pega o id da empresa através do params como query (sem ID depois da rota) */
-            const { id } = req.query;            
-            const empresaDeletar = await Empresa.findByPk(id);
+            // const { id } = req.query;            
+            // const empresaDeletar = await Empresa.findByPk(id);
 
             //console.log(usuario, empresaDeletar, pessoa_encontrada, usuarioLogado);
-            console.log(id, empresaDeletar, pessoa_encontrada);
+            // console.log(empresaDeletar, pessoa_encontrada);
 
             //if (usuarioLogado.id !== empresaDeletar.fk_id_usuario) 
             //if (String(usuarioLogado.id) !== String(empresaDeletar.fk_id_usuario))

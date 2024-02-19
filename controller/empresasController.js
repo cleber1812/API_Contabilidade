@@ -55,10 +55,11 @@ class EmpresaController {
     async inserirEmpresa2(req, res) {
         try {
             const { nome_empresa } = req.body
-            const { usuario } = req.headers
-            //console.log(usuario)
+            // const { usuario } = req.headers
+            const id = req.userId;
+            console.log(id)
             const empresaResultado = await Empresa.create({
-                fk_id_usuario: usuario,
+                fk_id_usuario: id,
                 nome_empresa                
             })            
             return res.status(200).json(empresaResultado);

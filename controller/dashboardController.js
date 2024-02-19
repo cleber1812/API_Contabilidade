@@ -17,10 +17,17 @@ class DashboardController {
     // }
 
     async show(req, res) {
-        const { id } = req.params;
+        // const { id } = req.params;
+        const id = req.userId;
+        // console.log(id);
+        // console.log(req.userId);
+
+        // const user = await Usuario.findByPk(req.userId)
+        // console.log(user);
 
         try {
             // Certifique-se de que o ID do usuário na rota seja um número
+            // const userId = parseInt(id, 10);
             const userId = parseInt(id, 10);
 
             // Verificar se o ID do usuário na rota é válido

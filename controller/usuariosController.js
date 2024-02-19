@@ -9,8 +9,10 @@ class UsuariosController {
     async meusDados(req,res) {
         try {
             const pessoa_encontrada = await Usuario.findByPk(req.userId);
-            if (pessoa_encontrada)
-                return res.status(200).json(pessoa_encontrada)                
+            if (pessoa_encontrada){
+                console.log(req.userId);               
+                return res.status(200).json(pessoa_encontrada);                
+                }
             else
                 return res.status(200).json({mensagem: "Pessoa não encontrada"}); 
         }

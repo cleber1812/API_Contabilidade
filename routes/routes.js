@@ -61,6 +61,7 @@ routes.get('/lancamentosempresa/:fk_id_empresa', verificar(), DashboardControlle
 routes.get('/diarioempresa/:fk_id_empresa', DashboardController.diario);
 routes.get('/razaoempresa/:fk_id_empresa', DashboardController.razao);
 routes.get('/balanco/:fk_id_empresa', DashboardController.balanco);
+routes.get('/dre/:fk_id_empresa', DashboardController.dre);
 
 
 module.exports = routes;

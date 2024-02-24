@@ -271,10 +271,205 @@ class DashboardController {
             //     };
             // }
 
-            const balanco = await Contas.findAll({
+            const lancamentos = await Contas.findAll({
                 attributes: [
                     'id', 'fk_id_grupo', 'subgrupo', 'elemento', 'conta',                    
                                         
+                    [sequelize.literal(`
+                        COALESCE((
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+                                AND lancamentosDebito.data < '${startDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data < '${startDate}'
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                        ), 0)`),
+                        'saldoAnterior',                    
+                    ],
+
+                    [sequelize.literal(`
+                        COALESCE((                                
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE
+                                lancamentosDebito.fk_id_empresa = ${empresaId}                                        
+                                AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
+                        ), 0)`),
+                        'valorD',
+                    ],
+
+                    [sequelize.literal(`
+                        COALESCE((                        
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                            ), 0)`),
+                        'valorC',                    
+                    ],
+                    
+                    [sequelize.literal(`
+                        COALESCE((
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+                                AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                        ), 0)`),
+                        'valor',                    
+                    ],  
+
+                    [sequelize.literal(`
+                        COALESCE((
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+                                AND lancamentosDebito.data <= '${endDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data <= '${endDate}'
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                        ), 0)`),
+                        'saldoAtual',                    
+                    ],
+                    
+                ],
+                include: [ 
+                    {
+                        model: Lancamento,
+                        as: 'lancamentosDebito',
+                        attributes: ['valor', 'fk_id_conta_debito'],
+                        where: {
+                            fk_id_empresa: empresaId,
+                                data: {
+                                    // [Op.between]: ['2023-01-01', '2024-12-31'],
+                                    [Op.between]: [startDate, endDate],
+                                    // ...whereClause,
+                                },                               
+                        },                        
+                        required: false,
+                    }, 
+                    {
+                        model: Lancamento,
+                        as: 'lancamentosCredito',
+                        attributes: ['valor', 'fk_id_conta_credito'],
+                        where: {
+                            fk_id_empresa: empresaId,
+                            data: {
+                                // [Op.between]: ['2023-01-01', '2024-12-31'],
+                                [Op.between]: [startDate, endDate],
+                                // ...whereClause,                            
+                            }, 
+                        },
+                        required: false,
+                    },   
+                    {
+                        model: Grupo,    
+                        as: 'grupo', // Use o alias que você configurou na associação                    
+                        attributes: ['nome_grupo', 'grupo', 'grupo_principal'],                        
+                    },
+                ],
+                where: {
+                    //     fk_id_empresa: empresaId,                    
+                    //     data: {
+                    //         [Op.between]: ['2023-04-01', '2024-12-31']
+                    //         // [Op.between]: [startDate, endDate]
+                    //     },
+                    //     // ...whereClause,
+                    [Op.or]: [
+                        { '$lancamentosDebito.fk_id_conta_debito$': { [Op.not]: null } }, // Excluir lançamentos sem contaDebito
+                        { '$lancamentosCredito.fk_id_conta_credito$': { [Op.not]: null } } // Excluir lançamentos sem contaCredito
+                    ],
+                    '$grupo.grupo$': { [Op.in]: [1, 2, 3, 4, 5] }, // Adicione esta linha para filtrar pelos grupos desejados
+                },
+                group: ['Contas.id', 'grupo.id'], // Use o alias ao agrupar
+                // group: ['Contas.id'], // Use o alias ao agrupar
+                order: [[{Model: Grupo}, 'grupo'], ['subgrupo'], ['elemento']],
+                // order: [['subgrupo'], ['elemento']],
+                raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
+                nest: true, // Agrupa os resultados aninhados
+            });
+
+            // res.status(200).json(lancamentos);
+
+            // Transformar os resultados antes de enviar como resposta
+            const resultadosFormatados = lancamentos.map(lancamento => ({
+                id: lancamento.id,
+                grupo_principal: lancamento.grupo.grupo_principal,
+                grupo: lancamento.grupo.grupo,                
+                subgrupo: lancamento.subgrupo,
+                elemento: lancamento.elemento,
+                nome_grupo: lancamento.grupo.nome_grupo,
+                conta: lancamento.conta,
+                saldoAnterior: lancamento.saldoAnterior,
+                valor: lancamento.valor,
+                valorD: lancamento.valorD,
+                valorC: lancamento.valorC,
+                saldoAtual: lancamento.saldoAtual,
+            }));
+
+            res.status(200).json(resultadosFormatados);
+
+
+        } catch (error) {
+            console.error('Erro ao buscar lançamentos:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+
+    //DRE
+
+    async dre(req, res) {
+        try {
+            const empresaId = req.params.fk_id_empresa;            
+            const startDate = req.query.startDate;
+            const endDate = req.query.endDate;
+            
+            const lancamentos = await Contas.findAll({
+                attributes: [
+                    'id', 'fk_id_grupo', 'subgrupo', 'elemento', 'conta',                    
+                                        
+                    [sequelize.literal(`
+                        COALESCE((
+                            SELECT SUM(lancamentosDebito.valor)
+                            FROM lancamentos AS lancamentosDebito
+                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+                                AND lancamentosDebito.data < '${startDate}'
+                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM(lancamentosCredito.valor)
+                            FROM lancamentos AS lancamentosCredito
+                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+                                AND lancamentosCredito.data < '${startDate}'
+                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
+                        ), 0)`),
+                        'saldoAnterior',                    
+                    ],
+
                     [sequelize.literal(`
                         COALESCE((                                
                             SELECT SUM(lancamentosDebito.valor)
@@ -324,11 +519,9 @@ class DashboardController {
                         attributes: ['valor', 'fk_id_conta_debito'],
                         where: {
                             fk_id_empresa: empresaId,
-                                data: {
-                                    // [Op.between]: ['2023-01-01', '2024-12-31'],
-                                    [Op.between]: [startDate, endDate],
-                                    // ...whereClause,
-                                },                                         
+                                data: {                                    
+                                    [Op.between]: [startDate, endDate],                                    
+                                },                               
                         },                        
                         required: false,
                     }, 
@@ -338,10 +531,8 @@ class DashboardController {
                         attributes: ['valor', 'fk_id_conta_credito'],
                         where: {
                             fk_id_empresa: empresaId,
-                            data: {
-                                // [Op.between]: ['2023-01-01', '2024-12-31'],
-                                [Op.between]: [startDate, endDate],
-                                // ...whereClause,                            
+                            data: {                                
+                                [Op.between]: [startDate, endDate],                                
                             }, 
                         },
                         required: false,
@@ -349,40 +540,37 @@ class DashboardController {
                     {
                         model: Grupo,    
                         as: 'grupo', // Use o alias que você configurou na associação                    
-                        attributes: ['nome_grupo', 'grupo'],                        
+                        attributes: ['nome_grupo', 'grupo', 'grupo_principal'],                        
                     },
                 ],
-                where: {
-                //     fk_id_empresa: empresaId,                    
-                //     data: {
-                //         [Op.between]: ['2023-04-01', '2024-12-31']
-                //         // [Op.between]: [startDate, endDate]
-                //     },
-                //     // ...whereClause,
-                [Op.or]: [
-                    { '$lancamentosDebito.fk_id_conta_debito$': { [Op.not]: null } }, // Excluir lançamentos sem contaDebito
-                    { '$lancamentosCredito.fk_id_conta_credito$': { [Op.not]: null } } // Excluir lançamentos sem contaCredito
-                ],
-                
+                where: {                
+                    [Op.or]: [
+                        { '$lancamentosDebito.fk_id_conta_debito$': { [Op.not]: null } }, // Excluir lançamentos sem contaDebito
+                        { '$lancamentosCredito.fk_id_conta_credito$': { [Op.not]: null } } // Excluir lançamentos sem contaCredito
+                    ],
+                    '$grupo.grupo$': { [Op.in]: [6, 7, 8] }, // Adicione esta linha para filtrar pelos grupos desejados
                 },
-                group: ['Contas.id', 'grupo.id'], // Use o alias ao agrupar
-                // group: ['Contas.id'], // Use o alias ao agrupar
-                order: [[{Model: Grupo}, 'grupo'], ['subgrupo'], ['elemento']],
-                // order: [['subgrupo'], ['elemento']],
+                group: ['Contas.id', 'grupo.id'], // Use o alias ao agrupar                                
+                order: [
+                    // [{Model: Grupo}, 'grupo'], ['subgrupo'], ['elemento']
+                    // [{ model: Grupo, as: 'grupo' }, 'grupo', 'DESC'], // Ordenar decrescente por 'grupo'
+                    [{ Model: Grupo}, 'grupo', 'DESC'], // Ordenar decrescente por 'grupo'
+                    ['subgrupo', 'ASC'], // Ordenar crescente por 'subgrupo'
+                    ['elemento', 'ASC'], // Ordenar crescente por 'elemento'
+                ],
                 raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
                 nest: true, // Agrupa os resultados aninhados
             });
 
-            // res.status(200).json(balanco);
-
-            // Transformar os resultados antes de enviar como resposta
-            const resultadosFormatados = balanco.map(lancamento => ({
+            const resultadosFormatados = lancamentos.map(lancamento => ({
                 id: lancamento.id,
+                grupo_principal: lancamento.grupo.grupo_principal,
                 grupo: lancamento.grupo.grupo,                
                 subgrupo: lancamento.subgrupo,
                 elemento: lancamento.elemento,
                 nome_grupo: lancamento.grupo.nome_grupo,
                 conta: lancamento.conta,
+                saldoAnterior: lancamento.saldoAnterior,
                 valor: lancamento.valor,
                 valorD: lancamento.valorD,
                 valorC: lancamento.valorC,
@@ -390,12 +578,11 @@ class DashboardController {
 
             res.status(200).json(resultadosFormatados);
 
-
         } catch (error) {
             console.error('Erro ao buscar lançamentos:', error);
             res.status(500).json({ error: 'Erro interno do servidor' });
         }
-    }
+    }    
 
 }
 

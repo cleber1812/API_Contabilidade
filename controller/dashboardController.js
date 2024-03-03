@@ -60,6 +60,14 @@ class DashboardController {
                 return res.status(400).json({ mensagem: "ID da empresa inválido" });
             }
 
+            // Limita acesso apenas para as empresas do usuário
+            let dadosEmpresa = await Empresa.findByPk(empresaId);            
+            const idUsuario = req.userId;                                                
+            if (idUsuario !== dadosEmpresa.fk_id_usuario) {     
+                console.log(empresaId)    
+                return res.status(401).json({error: "Não autorizado"}) 
+            }
+
             // Buscar os lançamentos associadas à empresa
             const lancamentos = await Lancamento.findAll({
                 attributes: [
@@ -124,6 +132,14 @@ class DashboardController {
             const empresaId = req.params.fk_id_empresa;
             const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
             const endDate = req.query.endDate;
+
+            //Limita acesso apenas para as empresas do usuário
+            let dadosEmpresa = await Empresa.findByPk(empresaId);            
+            const idUsuario = req.userId;                                                
+            if (idUsuario !== dadosEmpresa.fk_id_usuario) {     
+                console.log(empresaId)    
+                return res.status(401).json({error: "Não autorizado"}) 
+            }
 
             let whereClause = {};
             if (startDate && endDate) {
@@ -196,6 +212,14 @@ class DashboardController {
             const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
             const endDate = req.query.endDate;
             const contaConsultada = req.query.contaConsultada;
+
+            //Limita acesso apenas para as empresas do usuário
+            let dadosEmpresa = await Empresa.findByPk(empresaId);            
+            const idUsuario = req.userId;                                                
+            if (idUsuario !== dadosEmpresa.fk_id_usuario) {     
+                console.log(empresaId)    
+                return res.status(401).json({error: "Não autorizado"}) 
+            }
             
             const lancamentos = await Lancamento.findAll({
                 attributes: [
@@ -257,9 +281,19 @@ class DashboardController {
 
     async balanco(req, res) {
         try {
-            const empresaId = req.params.fk_id_empresa;            
+            const empresaId = req.params.fk_id_empresa; 
             const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
-            const endDate = req.query.endDate;
+            const endDate = req.query.endDate;            
+
+            //Limita acesso apenas para as empresas do usuário
+            let dadosEmpresa = await Empresa.findByPk(empresaId);            
+            const idUsuario = req.userId;                                    
+            // if (String(idUsuario) !== String(dadosEmpresa.fk_id_usuario))
+            if (idUsuario !== dadosEmpresa.fk_id_usuario) {     
+                console.log(empresaId)    
+                return res.status(401).json({error: "Não autorizado"}) 
+            }          
+            
             // console.log(empresaId)
 
             // let whereClause = {};
@@ -388,7 +422,7 @@ class DashboardController {
                     {
                         model: Grupo,    
                         as: 'grupo', // Use o alias que você configurou na associação                    
-                        attributes: ['nome_grupo', 'grupo', 'grupo_principal'],                        
+                        attributes: ['nome_grupo', 'grupo', 'grupo_principal', 'nome_grupo_principal'],                        
                     },
                 ],
                 where: {
@@ -418,6 +452,7 @@ class DashboardController {
             const resultadosFormatados = lancamentos.map(lancamento => ({
                 id: lancamento.id,
                 grupo_principal: lancamento.grupo.grupo_principal,
+                nome_grupo_principal: lancamento.grupo.nome_grupo_principal,
                 grupo: lancamento.grupo.grupo,                
                 subgrupo: lancamento.subgrupo,
                 elemento: lancamento.elemento,
@@ -446,6 +481,14 @@ class DashboardController {
             const empresaId = req.params.fk_id_empresa;            
             const startDate = req.query.startDate;
             const endDate = req.query.endDate;
+
+            //Limita acesso apenas para as empresas do usuário
+            let dadosEmpresa = await Empresa.findByPk(empresaId);            
+            const idUsuario = req.userId;                                                
+            if (idUsuario !== dadosEmpresa.fk_id_usuario) {     
+                console.log(empresaId)    
+                return res.status(401).json({error: "Não autorizado"}) 
+            }
             
             const lancamentos = await Contas.findAll({
                 attributes: [

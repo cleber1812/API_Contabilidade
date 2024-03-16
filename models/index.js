@@ -11,19 +11,16 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], 
-  //   {
-  //   dialect: 'mysql',
-  //   dialectModule: require('mysql2')
-  // }, 
-  config );
+  sequelize = new Sequelize(process.env[config.use_env_variable], {
+    dialect: 'mysql',
+    dialectModule: require('mysql2')
+  }, config );
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password,  
-    // {
-    //   dialect: 'mysql',
-    //   dialectModule: require('mysql2')
-    // }, 
-    config);
+    {
+      dialect: 'mysql',
+      dialectModule: require('mysql2')
+    }, config);
 }
 
 fs

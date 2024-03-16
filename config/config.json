@@ -15,10 +15,10 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "sql10690499",
-    "password": "zT41wGKwU1",
-    "database": "sql10690499",
-    "host": "sql10.freesqldatabase.com",
+    "username": "root",
+    "password": "L790qk00%",
+    "database": "contabilidade",
+    "host": "127.0.0.1",
     "dialect": "mysql",
     "timezone": "-03:00"
   }

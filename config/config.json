@@ -4,7 +4,7 @@
     "password": "L790qk00%",
     "database": "contabilidade",
     "host": "127.0.0.1",
-    "dialect": "mysql",
+    "dialect": "mysql2",
     "timezone": "-03:00"
   },
   "test": {
@@ -15,11 +15,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
+    "username": "sql10690499",
+    "password": "zT41wGKwU1",
+    "database": "sql10690499",
+    "host": "sql10.freesqldatabase.com",
+    "dialect": "mysql2",
     "timezone": "-03:00"
   }
 }

@@ -11,8 +11,12 @@ const verificar = require('../middlewares/autenticacao');
 routes.get('/', (req, res) => {    
     res.status(200).json({message: "Hellow 4"});
     //res.status(200).json("Hellow World");
-    
 });
+
+routes.get('/hellow', (req, res) => {        
+    res.status(200).json("Hellow World");    
+});
+
 //ROTAS INICIAIS
 routes.post('/usuario', UsuariosController.inserirUsuario);
 routes.post('/login', UsuariosController.login);

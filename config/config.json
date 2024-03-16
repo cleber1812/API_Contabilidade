@@ -14,12 +14,12 @@
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
-  "production": {
+  "production": {    
     "username": "root",
     "password": "L790qk00%",
     "database": "contabilidade",
     "host": "127.0.0.1",
-    "dialect": "mysql",
+    "dialect": "mysql",    
     "timezone": "-03:00"
   }
 }

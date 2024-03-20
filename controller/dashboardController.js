@@ -277,7 +277,7 @@ class DashboardController {
         }
     }
 
-    //BALANCO
+    //BALANCO (Para consulta local usar FROM lancamentos (minúsculo) em COALESCE)
 
     async balanco(req, res) {
         try {
@@ -312,7 +312,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
                                 AND lancamentosDebito.data < '${startDate}'
                                 AND lancamentosDebito.fk_id_conta_debito = Contas.id
@@ -320,7 +320,7 @@ class DashboardController {
                         -
                         COALESCE((
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data < '${startDate}'
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id
@@ -331,7 +331,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((                                
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE
                                 lancamentosDebito.fk_id_empresa = ${empresaId}                                        
                                 AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
@@ -343,7 +343,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((                        
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id
@@ -354,7 +354,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
                                 AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
                                 AND lancamentosDebito.fk_id_conta_debito = Contas.id
@@ -362,7 +362,7 @@ class DashboardController {
                         -
                         COALESCE((
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id
@@ -373,7 +373,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
                                 AND lancamentosDebito.data <= '${endDate}'
                                 AND lancamentosDebito.fk_id_conta_debito = Contas.id
@@ -381,7 +381,7 @@ class DashboardController {
                         -
                         COALESCE((
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data <= '${endDate}'
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id
@@ -474,7 +474,7 @@ class DashboardController {
         }
     }
 
-    //DRE
+    //DRE  (Para consulta local usar FROM lancamentos)  (minúsculo)
 
     async dre(req, res) {
         try {
@@ -497,7 +497,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
                                 AND lancamentosDebito.data < '${startDate}'
                                 AND lancamentosDebito.fk_id_conta_debito = Contas.id
@@ -505,7 +505,7 @@ class DashboardController {
                         -
                         COALESCE((
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data < '${startDate}'
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id
@@ -516,7 +516,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((                                
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE
                                 lancamentosDebito.fk_id_empresa = ${empresaId}                                        
                                 AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
@@ -528,7 +528,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((                        
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id
@@ -539,7 +539,7 @@ class DashboardController {
                     [sequelize.literal(`
                         COALESCE((
                             SELECT SUM(lancamentosDebito.valor)
-                            FROM lancamentos AS lancamentosDebito
+                            FROM Lancamentos AS lancamentosDebito
                             WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
                                 AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
                                 AND lancamentosDebito.fk_id_conta_debito = Contas.id
@@ -547,7 +547,7 @@ class DashboardController {
                         -
                         COALESCE((
                             SELECT SUM(lancamentosCredito.valor)
-                            FROM lancamentos AS lancamentosCredito
+                            FROM Lancamentos AS lancamentosCredito
                             WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
                                 AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
                                 AND lancamentosCredito.fk_id_conta_credito = Contas.id

@@ -95,7 +95,7 @@ class DashboardController {
                 where: {
                     fk_id_empresa: empresaId
                 },
-                order: [['data']],
+                order: [['data', 'DESC']],
                 // raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
                 // nest: true, // Agrupa os resultados aninhados
             });

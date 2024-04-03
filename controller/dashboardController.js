@@ -282,7 +282,8 @@ class DashboardController {
     async balanco(req, res) {
         try {
             const empresaId = req.params.fk_id_empresa; 
-            const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
+            // const startDate = req.query.startDate; // Você pode ajustar como recebe os parâmetros conforme necessário
+            const startDate = new Date('2000-01-01'); // Você pode ajustar como recebe os parâmetros conforme necessário
             const endDate = req.query.endDate;            
 
             //Limita acesso apenas para as empresas do usuário
@@ -305,70 +306,71 @@ class DashboardController {
             //     };
             // }
 
+            //MODELOS DE CONSULTA AO BALANÇO
+            // [sequelize.literal(`
+            //             COALESCE((
+            //                 SELECT SUM(lancamentosDebito.valor)
+            //                 FROM Lancamentos AS lancamentosDebito
+            //                 WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+            //                     AND lancamentosDebito.data < '${startDate}'
+            //                     AND lancamentosDebito.fk_id_conta_debito = Contas.id
+            //             ), 0)
+            //             -
+            //             COALESCE((
+            //                 SELECT SUM(lancamentosCredito.valor)
+            //                 FROM Lancamentos AS lancamentosCredito
+            //                 WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+            //                     AND lancamentosCredito.data < '${startDate}'
+            //                     AND lancamentosCredito.fk_id_conta_credito = Contas.id
+            //             ), 0)`),
+            //             'saldoAnterior',                    
+            //         ],
+
+            //         [sequelize.literal(`
+            //             COALESCE((                                
+            //                 SELECT SUM(lancamentosDebito.valor)
+            //                 FROM Lancamentos AS lancamentosDebito
+            //                 WHERE
+            //                     lancamentosDebito.fk_id_empresa = ${empresaId}                                        
+            //                     AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
+            //                     AND lancamentosDebito.fk_id_conta_debito = Contas.id
+            //             ), 0)`),
+            //             'valorD',
+            //         ],
+
+            //         [sequelize.literal(`
+            //             COALESCE((                        
+            //                 SELECT SUM(lancamentosCredito.valor)
+            //                 FROM Lancamentos AS lancamentosCredito
+            //                 WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+            //                     AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
+            //                     AND lancamentosCredito.fk_id_conta_credito = Contas.id
+            //                 ), 0)`),
+            //             'valorC',                    
+            //         ],
+                    
+            //         [sequelize.literal(`
+            //             COALESCE((
+            //                 SELECT SUM(lancamentosDebito.valor)
+            //                 FROM Lancamentos AS lancamentosDebito
+            //                 WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
+            //                     AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
+            //                     AND lancamentosDebito.fk_id_conta_debito = Contas.id
+            //             ), 0)
+            //             -
+            //             COALESCE((
+            //                 SELECT SUM(lancamentosCredito.valor)
+            //                 FROM Lancamentos AS lancamentosCredito
+            //                 WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
+            //                     AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
+            //                     AND lancamentosCredito.fk_id_conta_credito = Contas.id
+            //             ), 0)`),
+            //             'valor',                    
+            //         ],  
+
             const lancamentos = await Contas.findAll({
                 attributes: [
                     'id', 'fk_id_grupo', 'subgrupo', 'elemento', 'conta',                    
-                                        
-                    [sequelize.literal(`
-                        COALESCE((
-                            SELECT SUM(lancamentosDebito.valor)
-                            FROM Lancamentos AS lancamentosDebito
-                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
-                                AND lancamentosDebito.data < '${startDate}'
-                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
-                        ), 0)
-                        -
-                        COALESCE((
-                            SELECT SUM(lancamentosCredito.valor)
-                            FROM Lancamentos AS lancamentosCredito
-                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
-                                AND lancamentosCredito.data < '${startDate}'
-                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
-                        ), 0)`),
-                        'saldoAnterior',                    
-                    ],
-
-                    [sequelize.literal(`
-                        COALESCE((                                
-                            SELECT SUM(lancamentosDebito.valor)
-                            FROM Lancamentos AS lancamentosDebito
-                            WHERE
-                                lancamentosDebito.fk_id_empresa = ${empresaId}                                        
-                                AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
-                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
-                        ), 0)`),
-                        'valorD',
-                    ],
-
-                    [sequelize.literal(`
-                        COALESCE((                        
-                            SELECT SUM(lancamentosCredito.valor)
-                            FROM Lancamentos AS lancamentosCredito
-                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
-                                AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}' 
-                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
-                            ), 0)`),
-                        'valorC',                    
-                    ],
-                    
-                    [sequelize.literal(`
-                        COALESCE((
-                            SELECT SUM(lancamentosDebito.valor)
-                            FROM Lancamentos AS lancamentosDebito
-                            WHERE lancamentosDebito.fk_id_empresa = ${empresaId} 
-                                AND lancamentosDebito.data BETWEEN '${startDate}' AND '${endDate}'
-                                AND lancamentosDebito.fk_id_conta_debito = Contas.id
-                        ), 0)
-                        -
-                        COALESCE((
-                            SELECT SUM(lancamentosCredito.valor)
-                            FROM Lancamentos AS lancamentosCredito
-                            WHERE lancamentosCredito.fk_id_empresa = ${empresaId}                            
-                                AND lancamentosCredito.data BETWEEN '${startDate}' AND '${endDate}'
-                                AND lancamentosCredito.fk_id_conta_credito = Contas.id
-                        ), 0)`),
-                        'valor',                    
-                    ],  
 
                     [sequelize.literal(`
                         COALESCE((
@@ -458,10 +460,10 @@ class DashboardController {
                 elemento: lancamento.elemento,
                 nome_grupo: lancamento.grupo.nome_grupo,
                 conta: lancamento.conta,
-                saldoAnterior: lancamento.saldoAnterior,
-                valor: lancamento.valor,
-                valorD: lancamento.valorD,
-                valorC: lancamento.valorC,
+                // saldoAnterior: lancamento.saldoAnterior,
+                // valor: lancamento.valor,
+                // valorD: lancamento.valorD,
+                // valorC: lancamento.valorC,
                 saldoAtual: lancamento.saldoAtual,
             }));
 

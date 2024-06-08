@@ -26,6 +26,16 @@ class UsuariosController {
     O JWT devolve um token válido para ser usado em outras 
     rotas com o middleware VERIFICAR() */
     async login(req,res) {
+
+        const schema = Yup.object().shape({            
+            email: Yup.string().min(4).email().required(),
+            senha: Yup.string().min(4).required(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Falha na validação'})
+        }
+
         let email = req.body.email;
         let senha = req.body.senha;
 
@@ -87,9 +97,9 @@ class UsuariosController {
     async inserirUsuario(req, res) {
         
         const schema = Yup.object().shape({
-            nome: Yup.string().required(),
-            email: Yup.string().email().required(),
-            senha: Yup.string().required(),
+            nome: Yup.string().min(4).required(),
+            email: Yup.string().min(4).email().required(),
+            senha: Yup.string().min(4).required(),
         });
 
         if(!(await schema.isValid(req.body))){
@@ -118,6 +128,17 @@ class UsuariosController {
     }
 
     async atualizarUsuario(req, res) {
+
+        const schema = Yup.object().shape({
+            nome: Yup.string().min(4),
+            email: Yup.string().min(4).email(),
+            senha: Yup.string().min(4),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Insira um e-mail válido.'})
+        }
+        
         try {
             let usuarioUpdate = await Usuario.findByPk(req.params.id);
             if (usuarioUpdate) {

@@ -1,6 +1,7 @@
 const { Usuario } = require('../models');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
+const Yup = require('yup');
 
 
 class UsuariosController {
@@ -84,6 +85,17 @@ class UsuariosController {
     }
 
     async inserirUsuario(req, res) {
+        
+        const schema = Yup.object().shape({
+            nome: Yup.string().required(),
+            email: Yup.string().email().required(),
+            senha: Yup.string().required(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Falha na validação'})
+        }
+
         let email = req.body.email;
 
         try {

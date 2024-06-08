@@ -1,6 +1,6 @@
 const { Empresa } = require('../models');
 const { Usuario } = require('../models');
-
+const Yup = require('yup');
 
 class EmpresaController {
 
@@ -53,6 +53,15 @@ class EmpresaController {
     }
 
     async inserirEmpresa2(req, res) {
+
+        const schema = Yup.object().shape({            
+            nome_empresa: Yup.string().min(4).required(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Falha na validação'})
+        }
+
         try {
             const { nome_empresa } = req.body
             // const { usuario } = req.headers
@@ -85,7 +94,16 @@ class EmpresaController {
         }
     }
 
-    async atualizarEmpresa2(req, res) {
+    async atualizarEmpresa2(req, res) {        
+
+        const schema = Yup.object().shape({            
+            nome_empresa: Yup.string().min(4),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Falha na validação'})
+        }
+
         try {
             const pessoa_encontrada = await Usuario.findByPk(req.userId);
             let empresaUpdate = await Empresa.findByPk(req.params.id);

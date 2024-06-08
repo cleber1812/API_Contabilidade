@@ -1,6 +1,7 @@
 // const { Lancamento, Usuario, Empresa, Contas } = require('../models');
 const { Lancamento, Usuario, Empresa, Contas, Grupo, sequelize } = require('../models'); // Certifique-se de incluir 'sequelize' na importação
 const { Op } = require('sequelize');
+const Yup = require('yup');
 
 class LancamentosController {
 
@@ -39,6 +40,19 @@ class LancamentosController {
     /*Nesta rota, o lançamento pega o ID em userID VERIFICAR() + id da empresa 
     na rota (params) e o restante do body. Só pode lançar na mesma empresa que ele criou*/
     async inserirLancamento2(req, res) {
+
+        const schema = Yup.object().shape({
+            data: Yup.date().required(),
+            descricao: Yup.string().min(10).required(),
+            fk_id_conta_debito: Yup.number().positive().required(),
+            fk_id_conta_credito: Yup.number().positive().required(),
+            valor: Yup.number().positive().required(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Falha na validação'})
+        }
+
         try {
             const pessoa_encontrada = await Usuario.findByPk(req.userId);
             const empresaLancar = await Empresa.findByPk(req.params.id); 
@@ -83,7 +97,20 @@ class LancamentosController {
         }
     }
 
-    async atualizarLancamento2(req, res) {
+    async atualizarLancamento2(req, res) {        
+
+        const schema = Yup.object().shape({
+            data: Yup.date(),
+            descricao: Yup.string().min(10),
+            fk_id_conta_debito: Yup.number().positive(),
+            fk_id_conta_credito: Yup.number().positive(),
+            valor: Yup.number().positive(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(400).json({ error: 'Falha na validação'})
+        }
+
         try {
             const idUsuario = req.userId; 
             let lancamentoUpdate = await Lancamento.findByPk(req.params.id);

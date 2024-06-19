@@ -50,7 +50,7 @@ class LancamentosController {
         });
 
         if(!(await schema.isValid(req.body))){
-            return res.status(400).json({ error: 'Falha na validação'})
+            return res.status(402).json({ error: 'Falha na validação'})
         }
 
         try {

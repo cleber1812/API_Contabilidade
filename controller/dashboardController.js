@@ -464,7 +464,8 @@ class DashboardController {
                 // valor: lancamento.valor,
                 // valorD: lancamento.valorD,
                 // valorC: lancamento.valorC,
-                saldoAtual: lancamento.saldoAtual,
+                // saldoAtual: lancamento.saldoAtual,
+                saldoAtual: lancamento.grupo.grupo_principal === 2 ? lancamento.saldoAtual * -1 : lancamento.saldoAtual,
             }));
 
             res.status(200).json(resultadosFormatados);

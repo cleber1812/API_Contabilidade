@@ -125,6 +125,82 @@ class DashboardController {
         }        
     }
 
+    //Consulta lançamentos POR PÁGINA
+
+    async lancamentosEmpresa2(req, res) {
+        try {            
+            const empresaId = req.params.fk_id_empresa;
+            const { page = 1, limit = 10 } = req.query; // Adiciona parâmetros de paginação com valores padrão
+            const offset = (page - 1) * limit;           
+
+            // Limita acesso apenas para as empresas do usuário
+            let dadosEmpresa = await Empresa.findByPk(empresaId);            
+            const idUsuario = req.userId;                                                
+            if (idUsuario !== dadosEmpresa.fk_id_usuario) {     
+                console.log(empresaId)    
+                return res.status(401).json({error: "Não autorizado"}) 
+            }
+
+            // Buscar os lançamentos associadas à empresa
+            const { count, rows } = await Lancamento.findAndCountAll({            
+                attributes: [
+                'id', 
+                'fk_id_empresa',
+                'data',
+                'descricao',
+                'fk_id_conta_debito',
+                'fk_id_conta_credito',
+                'valor',
+                'fk_id_usuario',
+                ],
+                include: [
+                    {
+                        model: Contas,
+                        as: 'contaDebito',
+                        attributes: ['conta'],                        
+                    },
+                    {
+                        model: Contas,
+                        as: 'contaCredito',
+                        attributes: ['conta'],                        
+                    }
+                ],
+                where: {
+                    fk_id_empresa: empresaId
+                },
+                order: [['data', 'DESC']],
+                limit: parseInt(limit),
+                offset: parseInt(offset)
+                // raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
+                // nest: true, // Agrupa os resultados aninhados
+            });
+            
+            // return res.status(200).json(lancamentos);  
+            
+            // Transformar os resultados antes de enviar como resposta
+            const resultadosFormatados = rows.map(lancamento => ({
+                id: lancamento.id,
+                fk_id_empresa: lancamento.fk_id_empresa,                               
+                data: moment(lancamento.data).format('DD/MM/YYYY'),
+                descricao: lancamento.descricao,
+                contaDebito: lancamento.contaDebito.conta,
+                contaCredito: lancamento.contaCredito.conta,
+                valor: lancamento.valor,                
+                fk_id_usuario: lancamento.fk_id_usuario,
+            }));
+
+            res.status(200).json({
+                totalItems: count,
+                lancamentos: resultadosFormatados,
+                totalPages: Math.ceil(count / limit),
+                currentPage: parseInt(page)
+            });
+
+        } catch (error) {
+            return res.status(500).json({ mensagem: "Erro ao buscar lançamentos da empresa", error: error.message });
+        }        
+    }
+
     //Livro Diário
 
     async diario(req, res) {

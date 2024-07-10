@@ -25,8 +25,10 @@ routes.post('/login', UsuariosController.login);
 routes.get('/usuarios', UsuariosController.listarUsuarios);
 routes.get('/usuario/:id', UsuariosController.listarUsuario);
 routes.get('/meusdados', verificar(), UsuariosController.meusDados);
-routes.put('/usuario/:id', UsuariosController.atualizarUsuario);
+// routes.put('/usuario/:id', UsuariosController.atualizarUsuario);
+routes.put('/usuario', verificar(), UsuariosController.atualizarUsuario2);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
+routes.get('/forgotpassword', UsuariosController.forgotPassword);
 
 routes.get('/index', EmpresasController.index);
 routes.get('/empresas', EmpresasController.listarEmpresas);

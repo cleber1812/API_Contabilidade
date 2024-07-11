@@ -16,7 +16,7 @@ class UsuariosController {
                 return res.status(200).json(pessoa_encontrada);                
                 }
             else
-                return res.status(200).json({mensagem: "Pessoa não encontrada"}); 
+                return res.status(201).json({mensagem: "Pessoa não encontrada"}); 
         }
         catch(err){
             return res.status(400).json({error: err.message});
@@ -28,14 +28,14 @@ class UsuariosController {
     rotas com o middleware VERIFICAR() */
     async login(req,res) {
 
-        // const schema = Yup.object().shape({            
-        //     email: Yup.string().email().required(),
-        //     senha: Yup.string().required(),
-        // });
+        const schema = Yup.object().shape({            
+            email: Yup.string().email().required(),
+            senha: Yup.string().required(),
+        });
 
-        // if(!(await schema.isValid(req.body))){
-        //     return res.status(404).json({ error: 'Falha na validação'})
-        // }
+        if(!(await schema.isValid(req.body))){
+            return res.status(404).json({ error: 'Falha na validação'})
+        }
 
         // let email = req.body.email;
         // let senha = req.body.senha;
@@ -96,7 +96,7 @@ class UsuariosController {
         });
 
         if(!(await schema.isValid(req.body))){
-            return res.status(400).json({ error: 'Falha na validação'})
+            return res.status(404).json({ error: 'Falha na validação'})
         }
 
         try {
@@ -109,7 +109,7 @@ class UsuariosController {
             const pessoa_encontrada = await Usuario.findOne({ where: { email } });
 
             if (!pessoa_encontrada) {
-                return res.status(400).send('Email não encontrado');
+                return res.status(403).send('Email não encontrado');
             }            
 
                 return res.status(200).json({                    
@@ -156,7 +156,7 @@ class UsuariosController {
         });
 
         if(!(await schema.isValid(req.body))){
-            return res.status(400).json({ error: 'Falha na validação'})
+            return res.status(404).json({ error: 'Falha na validação'})
         }
 
         // let email = req.body.email;
@@ -208,15 +208,15 @@ class UsuariosController {
 
     async atualizarUsuario2(req, res) {
 
-        // const schema = Yup.object().shape({
-        //     nome: Yup.string().min(4),
-        //     email: Yup.string().email(),
-        //     senha: Yup.string().max(10).min(4),
-        // });
+        const schema = Yup.object().shape({
+            nome: Yup.string().min(4),
+            email: Yup.string().email(),
+            senha: Yup.string().max(10).min(4),
+        });
 
-        // if(!(await schema.isValid(req.body))){
-        //     return res.status(403).json({ error: 'Insira dados válidos.'})
-        // }
+        if(!(await schema.isValid(req.body))){
+            return res.status(404).json({ error: 'Insira dados válidos.'})
+        }
         
         try {
             const idUsuario = req.userId;
@@ -258,7 +258,7 @@ class UsuariosController {
             }
         }
         catch (err) {
-            return res.status(404).json({error: err.message})
+            return res.status(400).json({error: err.message})
         }
     }
 

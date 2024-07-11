@@ -28,14 +28,14 @@ class UsuariosController {
     rotas com o middleware VERIFICAR() */
     async login(req,res) {
 
-        const schema = Yup.object().shape({            
-            email: Yup.string().email().required(),
-            senha: Yup.string().required(),
-        });
+        // const schema = Yup.object().shape({            
+        //     email: Yup.string().email().required(),
+        //     senha: Yup.string().required(),
+        // });
 
-        if(!(await schema.isValid(req.body))){
-            return res.status(400).json({ error: 'Falha na validação'})
-        }
+        // if(!(await schema.isValid(req.body))){
+        //     return res.status(404).json({ error: 'Falha na validação'})
+        // }
 
         // let email = req.body.email;
         // let senha = req.body.senha;
@@ -56,14 +56,14 @@ class UsuariosController {
             const pessoa_encontrada = await Usuario.findOne({ where: { email } });
 
             if (!pessoa_encontrada) {
-                return res.status(400).send('Usuário não encontrado');
+                return res.status(403).send('Usuário não encontrado');
             }
 
              // Comparar a senha fornecida com o hash armazenado
             const isMatch = await bcrypt.compare(senha, pessoa_encontrada.senha);
 
             if (!isMatch) {
-                return res.status(400).send('Senha incorreta');
+                return res.status(401).send('Senha incorreta');
             }
             
             // Se a senha estiver correta, prosseguir com o login

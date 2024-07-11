@@ -208,15 +208,15 @@ class UsuariosController {
 
     async atualizarUsuario2(req, res) {
 
-        const schema = Yup.object().shape({
-            nome: Yup.string().min(4),
-            email: Yup.string().email(),
-            senha: Yup.string().max(10).min(4),
-        });
+        // const schema = Yup.object().shape({
+        //     nome: Yup.string().min(4),
+        //     email: Yup.string().email(),
+        //     senha: Yup.string().max(10).min(4),
+        // });
 
-        if(!(await schema.isValid(req.body))){
-            return res.status(402).json({ error: 'Insira dados válidos.'})
-        }
+        // if(!(await schema.isValid(req.body))){
+        //     return res.status(403).json({ error: 'Insira dados válidos.'})
+        // }
         
         try {
             const idUsuario = req.userId;

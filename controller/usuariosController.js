@@ -249,13 +249,11 @@ class UsuariosController {
                 // Hash da nova senha, se fornecida
                 if(senha) {                
                     const hashedPassword = await bcrypt.hash(senha, 7);
-                    await usuarioUpdate.update({ nome, email, senha: hashedPassword });                    
+                    await usuarioUpdate.update({ nome, email, senha: hashedPassword });
+                    return res.status(200).json(usuarioUpdate)                    
                 }
-                else{
-                    // await usuarioUpdate.update(req.body);
-                    await usuarioUpdate.update({ nome, email });
-                }
-
+                
+                await usuarioUpdate.update(req.body);
                 return res.status(200).json(usuarioUpdate)
             }
             else {
@@ -293,17 +291,14 @@ class UsuariosController {
 
                 // Verificação de e-mail
                 if(email) {
-                    const pessoa_encontrada = await Usuario.findOne({ where: { email } })                    
+                    const pessoa_encontrada = await Usuario.findOne({ where: { email } })
 
-                    if(pessoa_encontrada && pessoa_encontrada.id !==  idUsuario){
+                    if(pessoa_encontrada && pessoa_encontrada.id !==  idUsuario){                        
                         return res.status(401).json({mensagem: "Email já cadastrado"})
-                    }                    
-                }                
-                else{
-                    // await usuarioUpdate.update(req.body);
-                    await usuarioUpdate.update({ nome, email });
+                    }                
                 }
 
+                await usuarioUpdate.update(req.body);
                 return res.status(200).json(usuarioUpdate)
             }
             else {

@@ -12,9 +12,13 @@ class UsuariosController {
         try {
             const pessoa_encontrada = await Usuario.findByPk(req.userId);
             if (pessoa_encontrada){
-                console.log(req.userId);               
-                return res.status(200).json(pessoa_encontrada);                
-                }
+                // console.log(req.userId);
+                // return res.status(200).json(pessoa_encontrada);
+                return res.status(200).json({                    
+                    nome: pessoa_encontrada.nome,
+                    email: pessoa_encontrada.email,
+                }); 
+            }
             else
                 return res.status(201).json({mensagem: "Pessoa não encontrada"}); 
         }
@@ -61,6 +65,7 @@ class UsuariosController {
 
              // Comparar a senha fornecida com o hash armazenado
             const isMatch = await bcrypt.compare(senha, pessoa_encontrada.senha);
+            // console.log(isMatch)
 
             if (!isMatch) {
                 return res.status(401).send('Senha incorreta');
@@ -246,6 +251,54 @@ class UsuariosController {
                     const hashedPassword = await bcrypt.hash(senha, 7);
                     await usuarioUpdate.update({ nome, email, senha: hashedPassword });                    
                 }
+                else{
+                    // await usuarioUpdate.update(req.body);
+                    await usuarioUpdate.update({ nome, email });
+                }
+
+                return res.status(200).json(usuarioUpdate)
+            }
+            else {
+                return res.status(201).json({mensagem:"Usuário não encontrado"})
+            }
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+    }
+
+    async atualizarUsuario3(req, res) {
+
+        const schema = Yup.object().shape({
+            nome: Yup.string().min(4),
+            email: Yup.string().email(),            
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(404).json({ error: 'Insira dados válidos.'})
+        }
+        
+        try {
+            const idUsuario = req.userId;            
+            const { nome } = req.body;
+            let email = req.body.email;
+
+            // Verificar se o email foi fornecido e convertê-lo para minúsculas
+            if (email) {
+                email = email.toLowerCase();
+            }
+            
+            let usuarioUpdate = await Usuario.findByPk(idUsuario);
+            if (usuarioUpdate) {
+
+                // Verificação de e-mail
+                if(email) {
+                    const pessoa_encontrada = await Usuario.findOne({ where: { email } })                    
+
+                    if(pessoa_encontrada && pessoa_encontrada.id !==  idUsuario){
+                        return res.status(401).json({mensagem: "Email já cadastrado"})
+                    }                    
+                }                
                 else{
                     // await usuarioUpdate.update(req.body);
                     await usuarioUpdate.update({ nome, email });

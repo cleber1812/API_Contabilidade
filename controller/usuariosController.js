@@ -265,6 +265,7 @@ class UsuariosController {
         }
     }
 
+    // Altera apenas Nome e email
     async atualizarUsuario3(req, res) {
 
         const schema = Yup.object().shape({
@@ -304,6 +305,44 @@ class UsuariosController {
             else {
                 return res.status(201).json({mensagem:"Usuário não encontrado"})
             }
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+    }
+
+    async alterarsenha(req, res) {
+
+        const schema = Yup.object().shape({            
+            senhaAtual: Yup.string().required(),
+            novaSenha: Yup.string().min(4).max(10).required(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(404).json({ error: 'Insira dados válidos.'})
+        }
+        
+        try {
+            const idUsuario = req.userId;            
+            const { senhaAtual, novaSenha } = req.body;
+            
+            let pessoa_encontrada = await Usuario.findByPk(idUsuario);
+            
+            if (!pessoa_encontrada) {
+                return res.status(404).json({ mensagem: "Usuário não encontrado" });
+            }
+
+            const isMatch = await bcrypt.compare(senhaAtual, pessoa_encontrada.senha);
+            if (!isMatch) {
+                return res.status(401).json({ error: 'Senha atual não confere' });
+            }
+
+            const hashedPassword = await bcrypt.hash(novaSenha, 7);
+            await pessoa_encontrada.update({ senha: hashedPassword });
+            // return res.status(200).json(pessoa_encontrada)
+            return res.status(200).json({ mensagem: 'Senha atualizada com sucesso' });
+                
+            
         }
         catch (err) {
             return res.status(400).json({error: err.message})

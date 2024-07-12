@@ -27,6 +27,7 @@ routes.get('/usuario/:id', UsuariosController.listarUsuario);
 routes.get('/meusdados', verificar(), UsuariosController.meusDados);
 // routes.put('/usuario/:id', UsuariosController.atualizarUsuario);
 routes.put('/usuario', verificar(), UsuariosController.atualizarUsuario3);
+routes.put('/alterarsenha', verificar(), UsuariosController.alterarsenha);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
 routes.get('/forgotpassword', UsuariosController.forgotPassword);
 

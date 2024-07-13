@@ -269,8 +269,8 @@ class UsuariosController {
     async atualizarUsuario3(req, res) {
 
         const schema = Yup.object().shape({
-            nome: Yup.string().min(4),
-            email: Yup.string().email(),            
+            nome: Yup.string().min(4).required(),
+            email: Yup.string().email().required(),
         });
 
         if(!(await schema.isValid(req.body))){

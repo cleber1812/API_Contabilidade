@@ -3,6 +3,24 @@ const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const Yup = require('yup');
 const bcrypt = require('bcrypt');
+const nodemailer = require("nodemailer");
+
+
+//Configuração para envio de email NodeMailer
+const SMTP_CONFIG = require("../config/smtp");
+
+const transporter = nodemailer.createTransport({
+  host: SMTP_CONFIG.host,
+  port: SMTP_CONFIG.port,
+  secure: false,
+  auth: {
+    user: SMTP_CONFIG.user,
+    pass: SMTP_CONFIG.pass,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
 
 class UsuariosController {
@@ -93,42 +111,6 @@ class UsuariosController {
             return res.status(400).json({error: err.message});        
         }
     }
-
-    async forgotPassword(req,res) {
-        
-        const schema = Yup.object().shape({            
-            email: Yup.string().email().required(),            
-        });
-
-        if(!(await schema.isValid(req.body))){
-            return res.status(404).json({ error: 'Falha na validação'})
-        }
-
-        try {
-            const email = req.body.email;
-            // Verificar se o email foi fornecido e convertê-lo para minúsculas
-            // if (!email) {
-            //     return res.status(400).send('Insira um Email');
-            // }
-            
-            const pessoa_encontrada = await Usuario.findOne({ where: { email } });
-
-            if (!pessoa_encontrada) {
-                return res.status(403).send('Email não encontrado');
-            }            
-
-                return res.status(200).json({                    
-                    nome: pessoa_encontrada.nome, 
-                    email,
-                    id: pessoa_encontrada.id,
-                    senha: pessoa_encontrada.senha
-                });              
-        }
-        catch(err) {
-            return res.status(400).json({error: err.message});        
-        }
-    }
-
 
     async listarUsuarios(req, res) {
         let usuarios = await Usuario.findAll({
@@ -311,6 +293,7 @@ class UsuariosController {
         }
     }
 
+    //Altera apenas senha
     async alterarsenha(req, res) {
 
         const schema = Yup.object().shape({            
@@ -365,6 +348,64 @@ class UsuariosController {
             return res.status(400).json({error: err.message})
         }
     }
+
+    async forgotPassword(req,res) {
+        
+        const schema = Yup.object().shape({            
+            email: Yup.string().email().required(),            
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(404).json({ error: 'Falha na validação'})
+        }
+
+        try {
+            const email = req.body.email;
+            // Verificar se o email foi fornecido e convertê-lo para minúsculas
+            // if (!email) {
+            //     return res.status(400).send('Insira um Email');
+            // }
+            
+            const pessoa_encontrada = await Usuario.findOne({ where: { email } });
+
+            if (!pessoa_encontrada) {
+                return res.status(403).send('Email não encontrado');
+            }            
+
+                return res.status(200).json({                    
+                    nome: pessoa_encontrada.nome, 
+                    email,
+                    id: pessoa_encontrada.id,
+                    senha: pessoa_encontrada.senha
+                });              
+        }
+        catch(err) {
+            return res.status(400).json({error: err.message});        
+        }
+    }
+
+    async enviarEmail(req, res) {
+        try {
+            const mailSent = await transporter.sendMail({
+            text: "Texto do E-mail",
+            subject: "Assunto do e-mail8",
+            from: "Cleber Souza <cleber1812roberto3@gmail.com>",
+            to: 'cleber1812roberto@gmail.com',
+            html: `
+            <html>
+            <body>
+                <strong>Conteúdo HTML</strong></br>Do E-mail
+            </body>
+            </html> 
+            `,
+            });      
+            // console.log(mailSent);
+            return res.status(200).json({mensagem:"email enviado com sucesso"})
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
+        }
+      }
 
 }
 

@@ -29,6 +29,7 @@ routes.get('/meusdados', verificar(), UsuariosController.meusDados);
 routes.put('/usuario', verificar(), UsuariosController.atualizarUsuario3);
 routes.put('/alterarsenha', verificar(), UsuariosController.alterarsenha);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
+routes.get('/enviaremail', UsuariosController.enviarEmail);
 routes.get('/forgotpassword', UsuariosController.forgotPassword);
 
 routes.get('/index', EmpresasController.index);

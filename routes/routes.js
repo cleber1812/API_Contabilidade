@@ -30,7 +30,7 @@ routes.put('/usuario', verificar(), UsuariosController.atualizarUsuario3);
 routes.put('/alterarsenha', verificar(), UsuariosController.alterarsenha);
 routes.delete('/usuario/:id', UsuariosController.deletarUsuario);
 routes.get('/enviaremail', UsuariosController.enviarEmail);
-routes.get('/esquecisenha', UsuariosController.esqueciSenha);
+routes.post('/esquecisenha', UsuariosController.esqueciSenha);
 routes.post('/redefinirsenha/:token', UsuariosController.redefinirSenha);
 
 routes.get('/index', EmpresasController.index);

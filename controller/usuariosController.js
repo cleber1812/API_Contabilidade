@@ -312,7 +312,7 @@ class UsuariosController {
             let pessoa_encontrada = await Usuario.findByPk(idUsuario);
             
             if (!pessoa_encontrada) {
-                return res.status(404).json({ mensagem: "Usuário não encontrado" });
+                return res.status(403).json({ mensagem: "Usuário não encontrado" });
             }
 
             const isMatch = await bcrypt.compare(senhaAtual, pessoa_encontrada.senha);
@@ -349,7 +349,7 @@ class UsuariosController {
         }
     }
 
-    async forgotPassword(req,res) {
+    async esqueciSenha(req,res) {
         
         const schema = Yup.object().shape({            
             email: Yup.string().email().required(),            
@@ -360,27 +360,70 @@ class UsuariosController {
         }
 
         try {
-            const email = req.body.email;
-            // Verificar se o email foi fornecido e convertê-lo para minúsculas
-            // if (!email) {
-            //     return res.status(400).send('Insira um Email');
-            // }
+            const { email } = req.body;            
             
             const pessoa_encontrada = await Usuario.findOne({ where: { email } });
 
             if (!pessoa_encontrada) {
                 return res.status(403).send('Email não encontrado');
-            }            
+            }
+            
+            const token = jwt.sign({ id: pessoa_encontrada.id }, 'segredo', { expiresIn: '1h' });
+            const link = `https://contabil123.netlify.app/redefinirsenha/${token}`;
 
-                return res.status(200).json({                    
-                    nome: pessoa_encontrada.nome, 
-                    email,
-                    id: pessoa_encontrada.id,
-                    senha: pessoa_encontrada.senha
-                });              
+            const mailOptions = {
+                to: pessoa_encontrada.email,
+                from: 'Cleber Souza <cleber1812roberto3@gmail.com>',
+                subject: 'Redefinição de Senha',
+                text: `Você está recebendo isso porque você solicitou a redefinição da senha para sua conta.\n\n` +
+                      `Por favor, clique no link ou cole no seu navegador para completar o processo:\n\n` +
+                      `${link}\n\n` +
+                      `Se você não solicitou isso, por favor, ignore este email e sua senha permanecerá inalterada.\n`,
+            };
+
+            const mailSent = await transporter.sendMail(mailOptions);
+                return res.status(200).json({mensagem:"email enviado com sucesso"})
+
+                // return res.status(200).json({                    
+                //     nome: pessoa_encontrada.nome, 
+                //     email,
+                //     id: pessoa_encontrada.id,
+                //     senha: pessoa_encontrada.senha
+                // });              
         }
         catch(err) {
             return res.status(400).json({error: err.message});        
+        }
+    }
+
+    //Trocar senha sem estar logado (externo)
+    async redefinirSenha(req, res) {
+
+        const schema = Yup.object().shape({        
+            novaSenha: Yup.string().min(4).max(10).required(),
+        });
+
+        if(!(await schema.isValid(req.body))){
+            return res.status(404).json({ error: 'Insira dados válidos.'})
+        }
+        
+        try {
+            const { token } = req.params;
+            const { novaSenha } = req.body;
+
+            const decoded = jwt.verify(token, 'segredo');
+            const pessoa_encontrada = await Usuario.findByPk(decoded.id);
+            
+            // Hash da nova senha
+            const hashedPassword = await bcrypt.hash(novaSenha, 7);
+            
+            await pessoa_encontrada.update({ senha: hashedPassword });
+            // return res.status(200).json(pessoa_encontrada)
+            return res.status(200).json({ mensagem: 'Senha redefinida com sucesso' });
+            
+        }
+        catch (err) {
+            return res.status(400).json({error: err.message})
         }
     }
 
@@ -388,7 +431,7 @@ class UsuariosController {
         try {
             const mailSent = await transporter.sendMail({
             text: "Texto do E-mail",
-            subject: "Assunto do e-mail8",
+            subject: "Assunto do e-mail",
             from: "Cleber Souza <cleber1812roberto3@gmail.com>",
             to: 'cleber1812roberto@gmail.com',
             html: `

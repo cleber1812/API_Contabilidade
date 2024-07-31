@@ -41,6 +41,7 @@ routes.get('/lancamentos', LancamentosController.listarLancamentos);
 routes.get('/lancamento/:id', LancamentosController.listarLancamento);
 
 routes.get('/contas', ContasController.listarContas);
+routes.get('/planocontas', ContasController.planoContas);
 routes.get('/conta/:id', ContasController.listarConta);
 routes.post('/conta', ContasController.inserirConta);
 routes.put('/conta/:id', ContasController.atualizarConta);

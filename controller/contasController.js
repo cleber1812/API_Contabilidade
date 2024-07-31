@@ -13,6 +13,40 @@ class ContasController {
     //     res.status(200).json(contas);
     // }
 
+    async planoContas(req, res) {
+        let contas = await Contas.findAll({            
+            // attributes: ['id', 'fk_id_grupo', 'subgrupo', 'elemento', 'conta'],
+            include: [
+                {
+                    model: Grupo,    
+                    as: 'grupo', // Use o alias que você configurou na associação                    
+                    // attributes: ['nome_grupo_principal'],                        
+                },
+            ],
+            group: ['Contas.id', 'grupo.id'], // Use o alias ao agrupar            
+            order: [[{Model: Grupo}, 'grupo'], ['subgrupo'], ['elemento']],
+            raw: true, // Retorna resultados como objetos JS em vez de instâncias de modelo Sequelize
+            nest: true, // Agrupa os resultados aninhados
+        });
+        // console.log(contas);
+        
+        // res.status(200).json(contas);
+
+                    // Transformar os resultados antes de enviar como resposta
+                    const resultadosFormatados = contas.map(conta => ({
+                        id: conta.id,
+                        subgrupo: conta.subgrupo,
+                        elemento: conta.elemento,
+                        conta: conta.conta,
+                        grupo_principal: conta.grupo.grupo_principal,
+                        nome_grupo_principal: conta.grupo.nome_grupo_principal,
+                        grupo: conta.grupo.grupo,
+                        nome_grupo: conta.grupo.nome_grupo,
+                    }));
+        
+                    res.status(200).json(resultadosFormatados);
+    }
+
     async listarContas(req, res) {
         let contas = await Contas.findAll({            
             attributes: ['id', 'fk_id_grupo', 'subgrupo', 'elemento', 'conta'],

@@ -432,7 +432,7 @@ class UsuariosController {
             const mailSent = await transporter.sendMail({
             text: "Texto do E-mail",
             subject: "Assunto do e-mail1",
-            from: "Cleber Souza <cleber1812roberto3@gmail.com>",
+            from: "Recontabis <simulacontabil@gmail.com>",
             to: 'cleber1812roberto@gmail.com',
             html: `
             <html>

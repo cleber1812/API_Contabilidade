@@ -437,7 +437,7 @@ class UsuariosController {
             html: `
             <html>
             <body>
-                <strong>Conteúdo HTML</strong></br>Do E-mail
+                <strong>Conteúdo HTML </strong></br>Do E-mail
             </body>
             </html> 
             `,

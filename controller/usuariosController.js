@@ -61,7 +61,9 @@ class UsuariosController {
 
         // let email = req.body.email;
         // let senha = req.body.senha;
-        const { email, senha } = req.body;
+        // const { email, senha } = req.body;
+        const { senha } = req.body;
+        const email = req.body.email.toLowerCase();  // Convertendo para minúsculas
 
         try {   
 

@@ -46,7 +46,7 @@ class UsuariosController {
     }
 
     /*Login é usado numa rota POST para enviar email e senha.
-    O JWT devolve um token válido para ser usado em outras 
+    O JWT devolve um token  válido para ser usado em outras 
     rotas com o middleware VERIFICAR() */
     async login(req,res) {
 
